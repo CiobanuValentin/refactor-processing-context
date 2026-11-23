@@ -1,8 +1,8 @@
 package com.bnp.pf.transformation.commons.api.generalproxyobs.service;
 
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.APPLICATION;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.APPLICATION_WITH_BUSINESS_KEY_NOT_FOUND;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.CORRELATION_ID_NOT_PROVIDED;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.APPLICATION;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.APPLICATION_WITH_BUSINESS_KEY_NOT_FOUND;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.CORRELATION_ID_NOT_PROVIDED;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.model.Application;
 
@@ -22,7 +22,6 @@ import com.bnp.pf.transformation.commons.api.model.Application;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ProxyContextValidator {
 
     // TODO: aliniaza textele cu CORR_ID_EMPTY / ORCH_MSG_EMPTY / BUSS_KEY_EMPTY / FLOW_ID_EMPTY din legacy
@@ -32,7 +31,7 @@ public class ProxyContextValidator {
 
     private static final String BAD_REQUEST = "400";
 
-    private final Gson gson;
+    private final Gson gson = GsonInstance.createGson();
 
     /** @return true daca mesajul poate fi procesat; la false, eroarea e deja in context. */
     public boolean validate(ProxyContext ctx) {

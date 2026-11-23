@@ -1,8 +1,8 @@
 package com.bnp.pf.transformation.commons.api.generalproxyobs.service;
 
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.APPLICATION;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.APPLICATION_WITH_BUSINESS_KEY_NOT_FOUND;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.CORRELATION_ID_NOT_PROVIDED;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.APPLICATION;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.APPLICATION_WITH_BUSINESS_KEY_NOT_FOUND;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.CORRELATION_ID_NOT_PROVIDED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.apache.avro.util.Utf8;
 import org.junit.jupiter.api.Test;
-
-import com.google.gson.Gson;
 
 import com.bnp.pf.transformation.avro.ArvalOrchestrationMessage;
 import com.bnp.pf.transformation.avro.ArvalSignal;
@@ -26,7 +24,7 @@ class ProxyContextValidatorTest {
     private static final String PROXY = "visproxy";
     private static final String VALID_APP = "{\"businessKey\":\"BK1\"}";
 
-    private final ProxyContextValidator validator = new ProxyContextValidator(new Gson());
+    private final ProxyContextValidator validator = new ProxyContextValidator();
 
     @Test
     void validMessage_passesAndResolvesApplication() {

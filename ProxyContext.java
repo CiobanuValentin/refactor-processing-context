@@ -16,7 +16,7 @@ import com.bnp.pf.transformation.avro.Signal;
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.error.ErrorHandler;
 import com.bnp.pf.transformation.commons.api.model.Application;
-import com.bnp.pf.transformation.commons.api.util.LocalDateTimeUtils;
+import com.bnp.pf.transformation.commons.api.utils.LocalDateTimeUtils;
 
 /**
  * Tot ce are nevoie un proxy pentru un mesaj: inputul (citit o singura data, imutabil),

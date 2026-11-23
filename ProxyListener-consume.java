@@ -1,5 +1,6 @@
-// Exemplu: cum arata consume() in bkrvisproxy dupa migrare (inlocuieste metodele
-// publishStatus / publishErrors / publishStatusAndErrors / hasErrors / errorsOf / eventTime din listener).
+// Exemplu: cum arata consume() in bkrvisproxy dupa migrare. Dispar din listener metodele
+// publishStatus / publishErrors / publishStatusAndErrors / hasErrors / errorsOf / eventTime.
+// KafkaPublisher-ul local se sterge; se foloseste cel din common-api prin ProxyResultPublisher.
 
 @KafkaListener(topics = "${kafka.consumers[0].topic}",
         containerFactory = "#{kafkaListenerContainerFactory['${kafka.consumers[0].topic}']}")
@@ -8,13 +9,11 @@ public void consume(@Payload OrchestrationMessage orchestrationMessage,
     ProxyContext ctx = ProxyContext.of(orchestrationMessage, correlation, proxyName);
     try {
         if (proxyContextValidator.validate(ctx)) {
-            // TODO: loanCheckProcess trebuie sa primeasca ProxyContext si sa foloseasca ctx.addError(code, message)
-            integrityCheckService.loanCheckProcess(ctx);
+            integrityCheckService.loanCheckProcess(ctx, orchestrationMessage);
             applicationService.updateApplicationStatus(ctx.getBusinessKey(), ctx.hasErrors() ? KO : OK);
         }
         proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
     } catch (RuntimeException e) {
-        // TODO: ProcessingFailedException are nevoie de un constructor care primeste ProxyContext
-        throw new ProcessingFailedException(ctx, e.getMessage(), e);
+        throw new ProxyProcessingFailedException(ctx, e.getMessage(), e);
     }
 }

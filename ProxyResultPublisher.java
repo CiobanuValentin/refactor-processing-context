@@ -1,12 +1,14 @@
 package com.bnp.pf.transformation.commons.api.generalproxyobs.service;
 
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.ERROR_MESSAGE;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.KO;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.OK;
-import static com.bnp.pf.transformation.commons.api.util.ProxyObsConstant.STATUS;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.ERROR_MESSAGE;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.KO;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.OK;
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.STATUS;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ import com.bnp.pf.transformation.avro.ArvalSignal;
 import com.bnp.pf.transformation.avro.Signal;
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
-import com.bnp.pf.transformation.commons.api.kafka.KafkaPublisher;
+import com.bnp.pf.transformation.commons.api.generalproxyobs.kafka.KafkaPublisher;
 
 /**
  * Construieste semnalele de iesire din context si le publica: status, apoi error.
@@ -61,15 +63,22 @@ public class ProxyResultPublisher {
         return properties;
     }
 
-    /** @return null cand nu exista erori; altfel Error_message_1..n, in ordinea in care au aparut. */
+    /**
+     * @return null cand nu exista erori; altfel Error_message_1..n, in ordinea in care au aparut.
+     *         Mesajele identice apar o singura data.
+     */
     static Map<CharSequence, CharSequence> errorProperties(ProxyContext ctx) {
         if (!ctx.hasErrors()) {
             return null;
         }
+        Set<String> messages = new LinkedHashSet<>();
+        for (Error error : ctx.getErrors()) {
+            messages.add(error.getErrorMessage());
+        }
         Map<CharSequence, CharSequence> properties = new LinkedHashMap<>();
         int index = 1;
-        for (Error error : ctx.getErrors()) {
-            properties.put(ERROR_MESSAGE + index++, error.getErrorMessage());
+        for (String message : messages) {
+            properties.put(ERROR_MESSAGE + index++, message);
         }
         return properties;
     }
