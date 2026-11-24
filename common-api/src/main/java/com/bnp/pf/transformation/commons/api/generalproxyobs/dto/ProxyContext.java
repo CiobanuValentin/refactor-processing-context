@@ -1,14 +1,18 @@
 package com.bnp.pf.transformation.commons.api.generalproxyobs.dto;
 
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.ARVAL_NL_FLOW_ID_PREFIX;
+
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import lombok.Getter;
 import lombok.Setter;
 
-// TODO: importurile pentru Signal, ArvalSignal, OrchestrationMessage, ArvalOrchestrationMessage,
-// Application, ErrorHandler, Error si LocalDateTimeUtils sunt presupuse - corecteaza-le din IDE.
+// TODO: importurile pentru clasele Avro, Application, ErrorHandler, Error si constanta
+// ARVAL_NL_FLOW_ID_PREFIX sunt presupuse - corecteaza-le din IDE.
 import com.bnp.pf.transformation.avro.ArvalOrchestrationMessage;
 import com.bnp.pf.transformation.avro.ArvalSignal;
 import com.bnp.pf.transformation.avro.OrchestrationMessage;
@@ -20,7 +24,7 @@ import com.bnp.pf.transformation.commons.api.utils.LocalDateTimeUtils;
 
 /**
  * Tot ce are nevoie un proxy pentru un mesaj: inputul (citit o singura data, imutabil),
- * aplicatia parsata si erorile. Nu tine semnale de iesire - ele se construiesc la publicare.
+ * aplicatia, erorile si proprietatile care pleaca in status. Semnalele de iesire se construiesc la publicare.
  */
 @Getter
 public class ProxyContext {
@@ -32,44 +36,65 @@ public class ProxyContext {
     private final String flowId;
     private final Map<CharSequence, CharSequence> properties;
     private final LocalDateTime eventTime;
+    /** Producer-ul din metadata mesajului primit; null daca lipseste. */
+    private final String producer;
     private final ErrorHandler errorHandler = new ErrorHandler();
+    /** Proprietati in plus pentru status-ul OK (ex. bnpOutputMessage la sed). */
+    private final Map<String, String> resultProperties = new LinkedHashMap<>();
 
     @Setter
     private Application application;
 
     private ProxyContext(String proxyName, String correlation, boolean signalPresent, CharSequence flowId,
-                         Map<CharSequence, CharSequence> properties, LocalDateTime eventTime) {
+                         Map<CharSequence, CharSequence> properties, LocalDateTime eventTime, CharSequence producer) {
         this.proxyName = proxyName;
         this.correlation = correlation;
         this.signalPresent = signalPresent;
         this.flowId = flowId == null ? null : flowId.toString();
         this.properties = properties == null ? Map.of() : properties;
         this.eventTime = eventTime;
+        this.producer = producer == null ? null : producer.toString();
     }
 
     public static ProxyContext of(OrchestrationMessage message, String correlation, String proxyName) {
-        LocalDateTime eventTime = message != null && message.getMetadata() != null
-                ? LocalDateTimeUtils.convertToNewLocalDateTime(message)
-                : LocalDateTime.now();
+        boolean hasMetadata = message != null && message.getMetadata() != null;
+        LocalDateTime eventTime = hasMetadata
+                ? eventTime(() -> LocalDateTimeUtils.convertToNewLocalDateTime(message)) : LocalDateTime.now();
+        CharSequence producer = hasMetadata ? message.getMetadata().getProducer() : null;
         Signal signal = message == null ? null : message.getData();
         return signal == null
-                ? new ProxyContext(proxyName, correlation, false, null, null, eventTime)
-                : new ProxyContext(proxyName, correlation, true, signal.getFlowId(), signal.getProperties(), eventTime);
+                ? new ProxyContext(proxyName, correlation, false, null, null, eventTime, producer)
+                : new ProxyContext(proxyName, correlation, true, signal.getFlowId(), signal.getProperties(), eventTime, producer);
     }
 
     public static ProxyContext of(ArvalOrchestrationMessage message, String correlation, String proxyName) {
-        LocalDateTime eventTime = message != null && message.getMetadata() != null
-                ? LocalDateTimeUtils.convertToNewLocalDateTime(message)
-                : LocalDateTime.now();
+        boolean hasMetadata = message != null && message.getMetadata() != null;
+        LocalDateTime eventTime = hasMetadata
+                ? eventTime(() -> LocalDateTimeUtils.convertToNewLocalDateTime(message)) : LocalDateTime.now();
+        CharSequence producer = hasMetadata ? message.getMetadata().getProducer() : null;
         ArvalSignal signal = message == null ? null : message.getData();
         return signal == null
-                ? new ProxyContext(proxyName, correlation, false, null, null, eventTime)
-                : new ProxyContext(proxyName, correlation, true, signal.getFlowId(), signal.getProperties(), eventTime);
+                ? new ProxyContext(proxyName, correlation, false, null, null, eventTime, producer)
+                : new ProxyContext(proxyName, correlation, true, signal.getFlowId(), signal.getProperties(), eventTime, producer);
+    }
+
+    /** Un timestamp lipsa sau in alt format nu trebuie sa opreasca procesarea: se foloseste ora curenta. */
+    private static LocalDateTime eventTime(Supplier<LocalDateTime> fromMetadata) {
+        try {
+            LocalDateTime eventTime = fromMetadata.get();
+            return eventTime == null ? LocalDateTime.now() : eventTime;
+        } catch (RuntimeException e) {
+            return LocalDateTime.now();
+        }
     }
 
     /** Business key-ul vine din aplicatia parsata; null pana cand aplicatia e rezolvata. */
     public String getBusinessKey() {
         return application == null ? null : application.getBusinessKey();
+    }
+
+    public boolean isArvalNlFlow() {
+        return flowId != null && flowId.startsWith(ARVAL_NL_FLOW_ID_PREFIX);
     }
 
     /** Cauta dupa text, deci merge si cu chei Utf8, si cu chei String. */
@@ -80,6 +105,11 @@ public class ProxyContext {
             }
         }
         return null;
+    }
+
+    /** Se publica in status doar daca procesarea se termina fara erori. */
+    public void putResultProperty(String key, String value) {
+        resultProperties.put(key, value);
     }
 
     public void addError(String code, String message) {
