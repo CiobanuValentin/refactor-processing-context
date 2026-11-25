@@ -9,7 +9,7 @@ public void consume(@Payload OrchestrationMessage orchestrationMessage,
     ProxyContext ctx = ProxyContext.of(orchestrationMessage, correlation, proxyName);
     try {
         if (proxyContextValidator.validate(ctx)) {
-            integrityCheckService.loanCheckProcess(ctx, orchestrationMessage);
+            integrityCheckService.loanCheckProcess(ctx);
             applicationService.updateApplicationStatus(ctx.getBusinessKey(), ctx.hasErrors() ? KO : OK);
         }
     } catch (RuntimeException e) {

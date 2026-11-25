@@ -5,15 +5,11 @@ import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyOb
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// TODO: importurile pentru OrchestrationMessage, Application, Loan, ApplicationService si GsonInstance
+// TODO: importurile pentru Application, Loan si ApplicationService
 // sunt presupuse - pastreaza-le pe cele din fisierul actual.
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
 import com.bnp.pf.transformation.commons.api.model.Application;
@@ -29,13 +25,12 @@ public class IntegrityCheckService {
 
     private final ApplicationService applicationService;
     private final CreditCheckService creditCheckService;
-    private final Gson gson = GsonInstance.createGson();
 
     /** Se apeleaza doar dupa ProxyContextValidator.validate(ctx) == true, deci aplicatia exista. */
-    public void loanCheckProcess(ProxyContext ctx, OrchestrationMessage orchestrationMessage) {
+    public void loanCheckProcess(ProxyContext ctx) {
         Application application = ctx.getApplication();
 
-        if (!saveApplication(application, ctx, orchestrationMessage)) {
+        if (!saveApplication(ctx)) {
             return;
         }
 
@@ -56,10 +51,9 @@ public class IntegrityCheckService {
         creditCheckService.checkCredit(ctx, loan);
     }
 
-    private boolean saveApplication(Application application, ProxyContext ctx, OrchestrationMessage orchestrationMessage) {
+    private boolean saveApplication(ProxyContext ctx) {
         try {
-            // TODO: ApplicationService.saveApplicationRequest are nevoie de o varianta cu ProxyContext
-            applicationService.saveApplicationRequest(application, orchestrationMessage, gson.toJson(application), ctx);
+            applicationService.saveApplicationRequest(ctx);
             return true;
         } catch (Exception e) {
             String errorMessage = "Error occurred when trying to save application to database. Error message for Business Key "

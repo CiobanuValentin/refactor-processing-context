@@ -4,8 +4,9 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
+| 0 | common-api | clasa care apelează `ProcessingFailedException.findIn` | trebuie ștearsă odată cu excepția |
 | 1 | common-api | `BKRVISMapper.checkErrors` și `createRiskAssessments(loan, ...)` | dacă adaugă pe loan la fiecare apel, VIS trebuie trecut pe listă, ca CKI |
-| 2 | common-api | `ApplicationRequestEntity` | de confirmat `getApplicationJson()` |
+| 2 | common-api | `ApplicationRequestEntity`, `ApplicationRequestDto`, `ApplicationRequestRepository` | de confirmat `getApplicationJson()` și pachetele |
 | 3 | ratproxy | clientul CloverLeaf (`BNPParibasCloverLeafAPI` + implementarea), versiunea cloud | semnăturile se schimbă; nu e rescris |
 | 4 | ratproxy | `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
 | 5 | sedproxy | `SedProcessorService.areParametersProvided`, condiția completă | linia era tăiată |

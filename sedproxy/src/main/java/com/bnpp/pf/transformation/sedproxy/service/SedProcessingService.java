@@ -53,7 +53,7 @@ public class SedProcessingService {
          */
         boolean aggregated = applicationAggregator.enrich(ctx, SOURCES);
 
-        // Se salveaza aplicatia cu rezultatele agregate: snippets/common-api/ApplicationService-changes.java
+        // Se salveaza aplicatia cu rezultatele agregate, nu JSON-ul primit.
         applicationService.saveApplicationRequest(ctx);
 
         if (!aggregated) {

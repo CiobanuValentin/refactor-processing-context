@@ -102,7 +102,7 @@ Comportamentul mapperelor rămâne cel din cloud, inclusiv ramurile de „fără
 
 ### Salvarea aplicației
 
-`ApplicationService.saveApplicationRequest(ProxyContext)` păstrează logica existentă: dacă există deja un rând pentru business key, actualizează doar `modifiedDate` și `modifiedBy`. JSON-ul nu se rescrie. Consecință pentru GET-ul din rat: la o a doua procesare a aceluiași business key, sed primește rezultatele rat de la prima.
+`ApplicationService.saveApplicationRequest(ProxyContext)` (vezi [COMMON-API.md](COMMON-API.md)) păstrează logica existentă: dacă există deja un rând pentru business key, actualizează doar `modifiedDate` și `modifiedBy`. JSON-ul nu se rescrie. Consecință pentru GET-ul din rat: la o a doua procesare a aceluiași business key, sed primește rezultatele rat de la prima.
 
 ## 6. Rat
 

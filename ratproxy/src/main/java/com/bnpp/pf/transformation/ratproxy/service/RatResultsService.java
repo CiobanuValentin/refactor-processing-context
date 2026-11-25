@@ -31,8 +31,7 @@ public class RatResultsService {
     private final Gson gson = GsonInstance.createGson();
 
     public ProxyResultsDto results(String businessKey, String flowId) {
-        // findSavedApplication: vezi snippets/common-api/ApplicationService-changes.java
-        Application application = applicationService.findSavedApplication(businessKey, flowId).orElse(null);
+        Application application = applicationService.findSavedApplication(businessKey).orElse(null);
         return toResults(businessKey, flowId, application);
     }
 
