@@ -4,9 +4,9 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | legacy common-api | `ApplicationBuilder.buildApplication` și clasa prin care citește rezultatele din Elasticsearch | cum citea legacy rândurile CKI (toate sau unul) și cum apela mapperul |
-| 2 | legacy common-api | `BKRCKIMapper` (sau echivalentul): `mapCKIData` și `createRiskAssessments` | comparația 1:1 cu mapperul din cloud |
-| 3 | legacy bkrckiproxy | cine apelează `MappingService.createRiskAssessments` și `isCkiExists` (Find Usages) | cu ce răspuns se construiau rezultatele de pe loan |
+| 1 | legacy common-api-1.23.jar | `PartialDataFetcher` + implementarea: `getCkiData`, `getEvaCompanyData` | ce întorceau: un rând sau o listă |
+| 2 | legacy common-api-1.23.jar | `BKRCKIMapper.mapCKIData` și `createRiskAssessments` | comparația 1:1 cu mapperul din cloud |
+| 3 | legacy proxyobs ratproxy | `RatMappingService.processRatSanctionDataAsync`, `getScoreResultAsync` | de confirmat că compliance nu era apelat nicăieri |
 | 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
 | 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) și ce întoarce când nu sunt date |
 | 5 | cloud common-api | `BKRVISMapper.checkErrors` | ce adaugă pe loan |

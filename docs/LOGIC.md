@@ -127,7 +127,23 @@ Maparea din legacy (`MappingService`, liniile 173-661) se regăsește în `BKRCK
 - `getFirstPayment().equals(...)` fără null-check;
 - numărătorile pe tip (`getNmbrOfActiveLoans`, `getLowRiskLoans`...) întorc suma unui singur credit (`findAny().getAmount()`), nu un număr.
 
-Diferență de structură, încă nelămurită: în legacy `createRiskAssessments(loan, ckiResponse)` pornește de la **un singur** `SingleBkrResponse` și face mereu Holder + CoHolder din același răspuns. În cloud, `createRiskAssessments(BkrCkiResponse)` pornește de la o listă de `BkrCkiResult` și alege unul pentru Holder și unul pentru CoHolder. Nu se vede în legacy cine apelează metoda și cu ce răspuns.
+### Agregarea în legacy (`ApplicationBuilder`, common-api-1.23.jar)
+
+Mapperele și `PartialDataFetcher` existau deja în biblioteca comună din legacy (`commons.api.applicationbuilder`). `ApplicationBuilder.buildApplication(businessKey, flowId)` citea aplicația din Elasticsearch, apoi apela aceleași mappere ca în cloud.
+
+- **rat** apela builderul pentru toate flow-urile; **sed** doar pentru Arval NL (altfel `findById`).
+- Dacă aplicația sau loan-ul lipsesc, builderul întoarce `null`, iar proxy-ul răspunde „Application not found".
+
+Ordinea surselor diferă:
+
+| | Ordine |
+|---|---|
+| Legacy | SCAL ×3, DNB, RVDR, VIS, EVA person, EVA company, CKI, EventIndicator |
+| Cloud (`ApplicationBuilderPG`) | SCAL ×3, DNB, CKI, RVDR, VIS, EVA company, EVA person, EventIndicator |
+
+Tot diferit: în legacy `mapEVACompanyData(fetcher.getEvaCompanyData(...))` primea direct ce întorcea fetcher-ul (deci o listă); în cloud e `singletonList(un dto)`.
+
+Nelămurit încă: ce întorceau în legacy `fetcher.getCkiData` (un rând sau toate) și cum arăta `BKRCKIMapper.mapCKIData`. `createRiskAssessments(loan, ckiResponse)` din proxy-ul cki e folosit doar în teste.
 
 ## 7. Rat
 
@@ -147,6 +163,14 @@ Diferențe de confirmat:
 - Salvarea aplicației când compliance e sărit este o schimbare față de cloud; de revenit dacă era intenționat.
 
 Neschimbate, marcate `TODO`: ramura `isCollateralIsPrivateUse` → endpointul de company, „OnHold" verificat diferit la aplicanți și companii, `getHasAlerts()` fără null-check.
+
+Din listenerul legacy (`reference/legacy/ratproxy/RATProxyListener.java`):
+
+- validarea adună toate erorile, nu se oprește la prima;
+- pașii sunt `processRatSanctionDataAsync` și `getScoreResultAsync`; **compliance nu e apelat**, iar `skipCommand` nu există;
+- rezultatul se salvează în Elasticsearch (`applicationRepository.save`), de unde îl lua sed;
+- la excepție: eroarea e `e.getMessage()` și se salvează un rând de sanction cu erorile și `response = false`;
+- se publică întâi error, apoi status.
 
 ## 8. Sed
 
