@@ -4,7 +4,7 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | common-api (cloud) | handlerul care apelează `ProcessingFailedException.findIn` (probabil în `ConsumersConfig`) | arată ce vede Camunda la retry; trebuie să știe și de `ProxyProcessingFailedException` |
+| 1 | common-api (legacy și cloud) | configurarea `kafkaListenerContainerFactory` (probabil `ConsumersConfig` / `KafkaConfig`) | arată ce se întâmplă cu o excepție neprinsă: retry, câte încercări, DLT |
 | 2 | common-api (cloud) | `ApplicationService`, toată clasa | pentru `saveApplicationRequest(ProxyContext)` și citirea aplicației salvate |
 | 3 | common-api (cloud) | `ApplicationRequestEntity` + `ApplicationRequestRepository` | GET-ul din rat citește aplicația salvată |
 | 4 | ratproxy | `ApplicantBuilder.createApplicant` | primește încă `collectError` și context |
@@ -21,7 +21,7 @@
 
 În `reference/` sunt doar clasele recitite acum. Restul pozelor nu au fost transcrise:
 
-- legacy: listenerele vis, dnb, rvdr, cki; rat (listener, mapping, client CloverLeaf); sed (listener, `SedProcessorService`, `SedMappingService`);
+- legacy: rat (listener, mapping, client CloverLeaf); sed (listener, `SedProcessorService`, `SedMappingService`);
 - cloud: `PartialDataFetcherPG`, cele 7 mappere, `ProxyDtoBuilder`, `ApplicationBuilderPG` din sed, serviciile și clientul sed, `MappingService` din cki.
 
 Comparația din `LOGIC.md` pentru aceste clase se bazează pe analiza din conversație, nu pe o recitire.

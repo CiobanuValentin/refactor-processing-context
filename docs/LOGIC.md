@@ -121,7 +121,19 @@ Listenerul devine cel din secțiunea 2. Serviciul propriu primește `ProxyContex
 - rvdr: verifică doar clienții și iese cu OK dacă lipsesc (ca în cloud). Rat și sed dau eroare doar dacă lipsesc și clienții, și companiile.
 - dnb: validarea comenzii (`dnb`, `eventindicator`) rămâne în proxy.
 
-## 9. Ce a fost verificat
+## 9. Excepții neașteptate
+
+| | Legacy (vis, dnb, rvdr, cki) | Cloud | Nou (acum) |
+|---|---|---|---|
+| `try/catch` în listener | nu există | există | există |
+| Eroare de la API-ul extern | serviciul de mapare o întoarce ca `List<ErrorHandler>`; răspuns KO cu error | depinde de proxy | KO cu error |
+| Excepție neprinsă | iese din listener către containerul Kafka | `ProcessingFailedException` (vis, rat); sed publică doar error | `ProxyProcessingFailedException` |
+
+În listenerele legacy nu există niciun handler. Ce se întâmplă cu o excepție neprinsă depinde de `kafkaListenerContainerFactory` din common, care nu a fost văzut. Camunda nu primește niciun răspuns de la proxy în acest caz.
+
+Decis: `ProcessingFailedException` și varianta nouă se scot. Nedecis: ce face `catch`-ul în loc.
+
+## 10. Ce a fost verificat
 
 - Clasele au fost compilate pe tipuri de probă scrise după poze, fără Lombok și Spring real.
 - 46 de teste trec, rulate ca JUnit 4.

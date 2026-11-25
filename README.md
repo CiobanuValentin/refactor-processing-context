@@ -15,6 +15,5 @@ Clase noi pentru common-api, sedproxy, ratproxy și rvdrproxy, scrise după poze
 | `rvdrproxy/` | `IntegrityCheckService` | rvdrproxy |
 | `snippets/` | fragmente de aplicat în alte clase (vis, cki, rat) | nu se compilează |
 | `reference/` | codul existent, transcris din poze, doar ca exemplu | nu se integrează |
-| `_superseded/` | versiuni vechi ale claselor noi | de șters |
 
 Clasele din common folosesc pachetul `com.bnp...`. Sed și rat folosesc `com.bnpp...`; rvdr și vis folosesc `com.bnp...`.
