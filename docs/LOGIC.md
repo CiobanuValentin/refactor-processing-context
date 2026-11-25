@@ -98,9 +98,13 @@ Stare pe surse, după comparația cu diff din IDE (legacy față de cloud):
 | VIS | listă; pe loan se adaugă în buclă, la fiecare rând | un apel per rând, mapper neschimbat | confirmat echivalent |
 | EVA person | listă; pe loan se adaugă în buclă | un apel per rând, mapper neschimbat | confirmat echivalent |
 | EVA company | listă; pe loan se adaugă în buclă | listă, mapper neschimbat | confirmat identic |
-| SCAL ×3, DNB, RVDR, EventIndicator | necomparat | un apel per rând | de comparat |
+| SCAL ×3, DNB, RVDR, EventIndicator | listă; nu adaugă nimic pe loan | un apel per rând, mapper neschimbat | confirmat echivalent |
 
 La VIS și EVA, mai multe rânduri fără erori înseamnă mai multe perechi Holder / CoHolder pe loan. Așa era și în legacy, deci nu se schimbă.
+
+Fără niciun rând, legacy nu făcea nimic, cu două excepții: VIS punea rezultate implicite pe fiecare client și pe loan, iar CKI punea cele două rezultate goale pe loan. Legătura nouă păstrează ambele. `DNBMapper` și `EventIndicatorMapper` din cloud aruncă NPE dacă primesc `null`, deci nu sunt apelate fără rânduri.
+
+Ce a adăugat cloud-ul în aceste mappere, fără să schimbe rezultatul pe date valide: protecții la null (RVDR `verifyResponse`, SCAL `person1NullCheck` / `foundNullCheck`, DNB `getPersonalDetails`), metode extrase și, la DNB, câmpurile noi `dnbLatestAccountFiledDate` / `Period`. `addOrCreate` din SCAL, cu `List.of(...)`, e identic în legacy.
 
 Diferențe găsite în `BKRCKIMapper` (51 în diff, văzute doar o parte):
 

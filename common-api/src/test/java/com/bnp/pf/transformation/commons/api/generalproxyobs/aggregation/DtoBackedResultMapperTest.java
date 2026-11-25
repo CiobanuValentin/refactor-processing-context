@@ -25,8 +25,18 @@ class DtoBackedResultMapperTest {
     }
 
     @Test
-    void noResults_existingMapperIsCalledOnceWithNull() {
+    void noResults_existingMapperIsNotCalled() {
         mapper.apply(List.of(), new Application(), null);
+
+        assertEquals(List.of(), calls);
+    }
+
+    @Test
+    void noResults_mapperThatAsksForIt_isCalledOnceWithNull() {
+        DtoBackedResultMapper<String> vis = new DtoBackedResultMapper<>(ProxySource.VIS,
+                result -> "dto", (dto, application) -> calls.add(String.valueOf(dto)), true);
+
+        vis.apply(List.of(), new Application(), null);
 
         assertEquals(List.of("null"), calls);
     }

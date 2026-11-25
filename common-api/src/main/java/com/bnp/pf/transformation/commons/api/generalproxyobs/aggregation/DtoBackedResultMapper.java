@@ -9,26 +9,35 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 /**
- * Leaga un mapper existent (BKRCKIMapper, DNBMapper, ...) de agregare, fara sa-l modifice. Face exact ce facea
- * ApplicationBuilderPG pentru o sursa: ProxyDtoBuilder construieste dto-ul tipizat, apoi se apeleaza mapperul.
- * Diferenta: daca sursa intoarce mai multe rezultate, mapperul e apelat pentru fiecare.
+ * Leaga un mapper existent (DNBMapper, SCALMapper, ...) de agregare, fara sa-l modifice.
  *
- * Fara niciun rezultat, mapperul e apelat o data cu null.
- * TODO: de confirmat ca PartialDataFetcherPG intorcea null in acest caz.
+ * In legacy mapperele primeau lista cu toate randurile sursei si le parcurgeau intr-o bucla; in cloud primesc
+ * un singur dto. Clasa aceasta reface bucla: ProxyDtoBuilder construieste dto-ul tipizat al fiecarui rand si
+ * mapperul din cloud e apelat pentru fiecare.
  *
- * @param <D> dto-ul tipizat al mapperului (CheckCkiPersonDto, ...)
+ * Fara niciun rand, legacy nu facea nimic - cu o exceptie, VIS, care punea rezultate implicite. De aceea
+ * mapperul e apelat cu null doar daca i se cere explicit (callWithNullWhenEmpty).
+ *
+ * @param <D> dto-ul tipizat al mapperului (CheckDnbCompanyDto, ...)
  */
 public class DtoBackedResultMapper<D> implements ProxyResultMapper {
 
     private final ProxySource source;
     private final Function<GeneralProxyObsDto, D> toDto;
     private final BiConsumer<D, Application> mapper;
+    private final boolean callWithNullWhenEmpty;
 
     public DtoBackedResultMapper(ProxySource source, Function<GeneralProxyObsDto, D> toDto,
                                  BiConsumer<D, Application> mapper) {
+        this(source, toDto, mapper, false);
+    }
+
+    public DtoBackedResultMapper(ProxySource source, Function<GeneralProxyObsDto, D> toDto,
+                                 BiConsumer<D, Application> mapper, boolean callWithNullWhenEmpty) {
         this.source = source;
         this.toDto = toDto;
         this.mapper = mapper;
+        this.callWithNullWhenEmpty = callWithNullWhenEmpty;
     }
 
     @Override
@@ -39,7 +48,9 @@ public class DtoBackedResultMapper<D> implements ProxyResultMapper {
     @Override
     public void apply(List<GeneralProxyObsDto> results, Application application, ProxyContext ctx) {
         if (results.isEmpty()) {
-            mapper.accept(null, application);
+            if (callWithNullWhenEmpty) {
+                mapper.accept(null, application);
+            }
             return;
         }
         for (GeneralProxyObsDto result : results) {

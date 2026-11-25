@@ -1,13 +1,16 @@
-// De pus in common-api. Inlocuieste corpul lui ApplicationBuilderPG.buildApplication: pentru fiecare sursa,
-// ProxyDtoBuilder construieste dto-urile tipizate si mapperul le pune pe aplicatie.
+// De pus in common-api. Inlocuieste corpul lui ApplicationBuilderPG.buildApplication.
 //
-// In legacy (common-api-1.23.jar) fetcher-ul intorcea List<...> si mapperele primeau lista. Comparat cu diff din IDE:
-//  - CKI: legacy adauga rezultatele de pe loan O SINGURA DATA, dupa bucla. mapCKIData se readuce la varianta
-//    din legacy (BKRCKIMapper-mapCKIData.java) si primeste lista.
-//  - VIS si EVA person: legacy adauga pe loan IN bucla, la fiecare rand. Un apel al mapperului din cloud pentru
-//    fiecare rand (DtoBackedResultMapper) face exact acelasi lucru, deci mapperele raman neschimbate.
+// In legacy (common-api-1.23.jar) fetcher-ul intorcea List<...> si fiecare mapper parcurgea lista intr-o bucla.
+// In cloud mapperele primesc un singur dto. Toate cele sapte au fost comparate cu diff din IDE:
+//  - SCAL x3, DNB, RVDR, EventIndicator, VIS, EVA person: tot ce fac se intampla IN bucla, deci un apel al
+//    mapperului din cloud pentru fiecare rand (DtoBackedResultMapper) e echivalent. Mapperele raman neschimbate.
+//  - CKI: singurul care adauga dupa bucla (rezultatele de pe loan, o singura data). mapCKIData se readuce la
+//    varianta din legacy (BKRCKIMapper-mapCKIData.java) si primeste lista.
 //  - EVA company: primeste lista si in cloud; logica e identica.
-//  - SCAL x3, DNB, RVDR, EventIndicator: un apel per rand, necomparate inca cu legacy.
+//
+// Fara niciun rand, legacy nu facea nimic, cu doua exceptii pastrate aici: VIS punea rezultate implicite
+// (de aceea e apelat cu null) si CKI punea cele doua rezultate goale pe loan (il face mapCKIData cu lista goala).
+// DNB si EventIndicator din cloud arunca NPE daca primesc null, deci nu sunt apelate fara randuri.
 
 @Configuration
 @RequiredArgsConstructor
@@ -47,7 +50,7 @@ public class ProxyResultMapperConfig {
 
     @Bean
     ProxyResultMapper visResultMapper(BKRVISMapper mapper) {
-        return new DtoBackedResultMapper<>(ProxySource.VIS, dtoBuilder::buildCheckVisDto, mapper::mapVISData);
+        return new DtoBackedResultMapper<>(ProxySource.VIS, dtoBuilder::buildCheckVisDto, mapper::mapVISData, true);
     }
 
     @Bean

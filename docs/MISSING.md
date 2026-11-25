@@ -4,16 +4,14 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | diff legacy / cloud | `SCALMapper`, `DNBMapper`, `RVDRMapper`, `EventIndicatorMapper`: metodele `map...Data` | unde se adaugă rezultatele față de buclă |
 | 2 | diff legacy / cloud | `BKRCKIMapper`: `createRiskAssessments`, `getCreditLoans(BkrPerson)` cu baloanele, `getInstallment`, `getDuration` | restul celor 51 de diferențe, doar unde nu e simplă reformatare |
 | 3 | legacy proxyobs ratproxy | `RatMappingService.processRatSanctionDataAsync`, `getScoreResultAsync` | de confirmat că compliance nu era apelat nicăieri |
 | 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
-| 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) și ce întoarce când nu sunt date |
+| 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) |
 | 5 | cloud common-api | `BKRVISMapper.checkErrors` | ce adaugă pe loan |
 | 6 | cloud common-api | clasa care apelează `ProcessingFailedException.findIn` | se șterge odată cu excepția |
 | 7 | cloud common-api | `ApplicationRequestEntity`, `ApplicationRequestDto`, `ApplicationRequestRepository` | pachete și `getApplicationJson()` |
 | 8 | cloud common-api | `ProxyObsConstant`, toată clasa | constante presupuse |
-| 9 | cloud common-api | semnăturile `map...Data` din `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper` | presupuse `(dto, application)` |
 | 10 | cloud ratproxy | clientul CloverLeaf, `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
 | 11 | cloud sedproxy | `areParametersProvided` (condiția completă), `ExpertiseReturn` | linie tăiată; câmp presupus |
 | 12 | legacy + cloud | cum ajunge `rat.compliance` de la rat la sed | propunerea e parcată în `pending/` |
