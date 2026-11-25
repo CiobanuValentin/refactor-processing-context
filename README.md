@@ -13,6 +13,7 @@ Clase noi pentru common-api, sedproxy, ratproxy și rvdrproxy, scrise după poze
 | `common-api/` | `ProxyContext`, validator, publisher, `KafkaPublisher`, agregare pe liste, teste | biblioteca common-api |
 | `sedproxy/` | listener, `SedProcessingService`, `SedProcessorService`, clientul DES | sedproxy |
 | `ratproxy/` | listener, `RatProcessingService`, `RatMappingService`, GET-ul de rezultate, test | ratproxy |
+| `bkrvisproxy/` | listener, servicii, client SOAP, config; vezi `MIGRATION.md` | bkrvisproxy |
 | `rvdrproxy/` | `IntegrityCheckService` | rvdrproxy |
 | `snippets/` | fragmente de aplicat în alte clase (vis, cki, rat) | nu se compilează |
 | `pending/` | propuneri necomparate cu legacy, scoase din flux | nu se integrează |

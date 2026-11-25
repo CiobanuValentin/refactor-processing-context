@@ -2,8 +2,22 @@
 // Liniile taiate in poza sunt marcate cu /* ...taiat */. Importurile nu erau vizibile.
 // bkrvisproxy, branch feature/proxy-refactorization-2.0 - com.bnp.pf.transformation.visproxy.controller
 
+@RequiredArgsConstructor
 public class ProxyListener {
-    /* ...campurile de pana la linia 55 nu erau in poza */
+    private final KafkaPublisher kafkaPublisher;
+    private final IntegrityCheckService integrityCheckService;
+    private final GeneralNullOrEmptyCheckService generalNullOrEmptyCheckService;
+    private final ApplicationService applicationService;
+    private final CollectError collectError;
+
+    @Value("${kafka.producers[0].topic}")
+    private String statusTopic;
+
+    @Value("${kafka.producers[1].topic}")
+    private String errorTopic;
+
+    @Value("${app.version:unknown}")
+    private String version;
 
     @Value("${proxy-name}")
     private String proxyName;
