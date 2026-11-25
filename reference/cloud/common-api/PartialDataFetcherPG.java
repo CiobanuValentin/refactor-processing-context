@@ -3,7 +3,14 @@
 package com.bnp.pf.transformation.commons.api.generalproxyobs.service;
 
 public class PartialDataFetcherPG implements PartialDataFetcher {
-    /* ...campurile cu URL-uri (scalRootUrl, scalPersonEndpoint, ...) nu erau in poza */
+    // @Value("${...}") pe fiecare camp:
+    //   dnb.root-url, dnb.check-endpoint, dnb.event-endpoint, bkrcki.root-url, bkrcki.endpoint,
+    //   scal.root-url, scal.entity-endpoint, scal.person-endpoint, scal.personInitial-endpoint,
+    //   rvdr.root-url, rvdr.checkCredit-endpoint, bkrvis.root-url, bkrvis.credit-endpoint,
+    //   bkreva.root-url, bkreva.company-endpoint, bkreva.person-endpoint
+    // Valori in application-local.yml (bkrckiproxy): /companyCheck, /companyEvent, /checkCki, /checkEntity,
+    //   /checkPersonInitial, /checkPerson, /checkCredit, /getEvaCompany, /getEvaPerson, /getVisEntity;
+    //   kafka.retries.max.attempts: 1, kafka.retries.interval: 1000
     private final CollectError collectError;
     private final ProxyDtoBuilder proxyDtoBuilder;
     private final ObjectMapper objectMapper;

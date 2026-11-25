@@ -1,7 +1,8 @@
 // bkrckiproxy: endpoint care intoarce toate randurile aplicatiei, in acelasi GeneralProxyObsDto ca endpointul actual.
 // Confirmat din MappingService.checkCki (cloud): se salveaza cate un rand pentru fiecare client eligibil,
 // iar fetchCheckCkiRequestAndResponse intoarce doar ultimul (findTop...OrderByCreationDesc).
-// Endpointul vechi ramane pana migreaza rat si sed.
+// Endpointul vechi ramane pana migreaza rat si sed. Cand un agregator trece pe liste, in application.yml-ul lui
+// se schimba doar valoarea: bkrcki.endpoint: "/checkCki/results".
 
 @GetMapping("/checkCki/results")
 public List<GeneralProxyObsDto> getCheckCkiResults(@RequestParam String businessKey, @RequestParam String flowId) {

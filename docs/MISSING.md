@@ -7,7 +7,7 @@
 | 3 | legacy proxyobs ratproxy | `RatMappingService.processRatSanctionDataAsync`, `getScoreResultAsync` | de confirmat că compliance nu era apelat nicăieri |
 | 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
 | 10 | cloud ratproxy | `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
-| 10b | cloud, orice proxy | o clasă din `config/` (ex. `PartialDataFetcherConfig`, `ApplicationServiceConfig`) și proprietățile cu URL-urile surselor | cum se declară bean-urile și cum se numesc proprietățile |
+| 10b | cloud, orice proxy | o clasă din `config/` (ex. `PartialDataFetcherConfig`, `RestClientConfig`) | cum se declară bean-urile și ce `RestClient` primește fetcher-ul |
 | 11 | cloud sedproxy | `areParametersProvided` (condiția completă), `ExpertiseReturn` | linie tăiată; câmp presupus |
 | 12 | legacy + cloud | cum ajunge `rat.compliance` de la rat la sed | propunerea e parcată în `pending/` |
 

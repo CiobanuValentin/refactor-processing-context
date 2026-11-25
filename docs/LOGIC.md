@@ -52,6 +52,7 @@ Diferențe față de legacy, toate decise:
 
 - businessKey și aplicația vin din mesaj, nu din Elasticsearch. De aceea aplicația se verifică înaintea businessKey-ului.
 - Se folosește `isEmpty` în loc de `isNull`, ca în cloud.
+- Textele erorilor sunt cele din `CkiConstants` legacy. Mesajul „Application not found" din legacy rămâne cel din cloud (`APPLICATION_WITH_BUSINESS_KEY_NOT_FOUND`).
 
 ## 4. Publicarea
 

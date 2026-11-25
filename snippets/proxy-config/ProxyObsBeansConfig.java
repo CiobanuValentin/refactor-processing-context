@@ -28,10 +28,10 @@ public class ProxyObsBeansConfig {
 
     // --- doar in rat si sed ---
 
+    // Citeste proprietatile existente: dnb.root-url, bkrcki.endpoint, scal.person-endpoint, ...
     @Bean
-    @ConfigurationProperties(prefix = "proxy-results")
-    public ProxySourceProperties proxySourceProperties() {
-        return new ProxySourceProperties();
+    public ProxySourceProperties proxySourceProperties(Environment environment) {
+        return new ProxySourceProperties(environment);
     }
 
     @Bean

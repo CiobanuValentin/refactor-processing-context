@@ -24,10 +24,11 @@ import com.bnp.pf.transformation.commons.api.message.input.Application;
 @Service
 public class ProxyContextValidator {
 
-    // TODO: aliniaza textele cu CORR_ID_EMPTY / ORCH_MSG_EMPTY / BUSS_KEY_EMPTY / FLOW_ID_EMPTY din legacy
+    // Textele din legacy (CkiConstants: ORCH_MSG_EMPTY, BUSS_KEY_EMPTY, FLOW_ID_EMPTY). Nu exista in ProxyObsConstant.
+    // Listenerele dnb si rat din legacy foloseau "Flow ID is empty" in loc de "FlowId is empty".
     public static final String ORCH_MSG_EMPTY = "Orchestration message is empty";
     public static final String BUSS_KEY_EMPTY = "Business key is empty";
-    public static final String FLOW_ID_EMPTY = "Flow ID is empty";
+    public static final String FLOW_ID_EMPTY = "FlowId is empty";
 
     private static final String BAD_REQUEST = "400";
 
