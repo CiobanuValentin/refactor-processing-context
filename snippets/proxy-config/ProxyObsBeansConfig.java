@@ -7,7 +7,7 @@
 // TODO: nu am vazut clasele de config existente; aliniaza numele bean-urilor si RestClient-ul cu ele.
 
 @Configuration
-@Import(ProxyResultMapperConfig.class)   // doar in rat si sed; vezi snippets/common-api/ProxyResultMapperConfig.java
+@Import(ProxyResultMapperConfig.class)   // doar in rat si sed; vezi ProxyResultMapperConfig din common-api
 public class ProxyObsBeansConfig {
 
     @Bean

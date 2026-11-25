@@ -4,6 +4,7 @@ Clase noi pentru common-api, sedproxy, ratproxy și rvdrproxy, scrise după poze
 
 - [docs/LOGIC.md](docs/LOGIC.md): ce face fiecare variantă (legacy, cloud, nou) și unde diferă.
 - [docs/COMMON-API.md](docs/COMMON-API.md): ce se șterge din common, ce se adaugă și echivalențele.
+- [docs/APPLY-COMMON.md](docs/APPLY-COMMON.md): cele două modificări de făcut de mână în `BKRCKIMapper`, gata de copiat.
 - [docs/MISSING.md](docs/MISSING.md): poze care lipsesc și întrebări deschise.
 
 ## Structură

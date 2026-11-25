@@ -89,7 +89,7 @@ Diferențe față de legacy:
 
 Mapperele din `applicationbuilder.utils` și `ProxyDtoBuilder` **nu se modifică**. Regula de lucru: logica de mapare rămâne cea din cloud până e comparată, sursă cu sursă, cu legacy.
 
-`snippets/common-api/ProxyResultMapperConfig.java` face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Singura diferență: sursa poate întoarce mai multe rânduri, iar mapperul e apelat pentru fiecare.
+`ProxyResultMapperConfig` (în `common-api/src`) face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Singura diferență: sursa poate întoarce mai multe rânduri, iar mapperul e apelat pentru fiecare.
 
 Stare pe surse, după comparația cu diff din IDE (legacy față de cloud):
 
@@ -112,7 +112,7 @@ Ce a adăugat cloud-ul în aceste mappere, fără să schimbe rezultatul pe date
 Diferențe găsite în `BKRCKIMapper` (51 în diff; restul, confirmat de Valentin, sunt doar `.collect(toList())` → `.toList()`):
 
 - `mapCKIData`: listă în legacy, un singur dto în cloud. Se readuce.
-- `collectAllResponses`: în cloud, ramura a doua are argumentele inversate și pierde creditele și scorurile persoanei cu aliasuri. Corecția: `snippets/common-api/BKRCKIMapper-collectAllResponses.java`.
+- `collectAllResponses`: în cloud, ramura a doua are argumentele inversate și pierde creditele și scorurile persoanei cu aliasuri. Corecția: `docs/APPLY-COMMON.md`.
 - `getManualCheck`, `getLoanResult`, `createClassificationResult`: doar rescrise (metode extrase, `defaultInt`), același rezultat.
 
 ### Salvarea aplicației
@@ -162,7 +162,7 @@ Ordinea surselor diferă:
 
 **Legacy lucra cu liste.** `PartialDataFetcher` întorcea `List<...>` pentru fiecare sursă (toate rândurile pentru businessKey și flowId, sau `null`), iar mapperele primeau lista. `BKRCKIMapper.mapCKIData(List<CheckCkiPersonDto>, Application)` parcurge toate rândurile, pune rezultatul pe fiecare client și adaugă rezultatele de pe loan o singură dată. În cloud, fetcher-ul întoarce un singur dto și mapperele au fost schimbate să primească unul; de aici se pierd rezultatele clienților de după primul.
 
-Ce se face: `mapCKIData` se readuce la varianta din legacy (`snippets/common-api/BKRCKIMapper-mapCKIData.java`). Restul din `BKRCKIMapper` văzut în jar (`createCkiResult`, `createEachCkiResult`, `collectAllResponses`) e identic cu cloud-ul. Pentru celelalte mappere, variantele pe listă din legacy încă nu au fost văzute.
+Ce se face: `mapCKIData` se readuce la varianta din legacy (`docs/APPLY-COMMON.md`). Restul din `BKRCKIMapper` văzut în jar (`createCkiResult`, `createEachCkiResult`, `collectAllResponses`) e identic cu cloud-ul. Pentru celelalte mappere, variantele pe listă din legacy încă nu au fost văzute.
 
 ## 7. Rat
 
