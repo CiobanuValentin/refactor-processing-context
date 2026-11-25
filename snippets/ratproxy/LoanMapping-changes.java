@@ -49,9 +49,4 @@ public void validate() {
     }
 }
 
-// --- BNPParibasCloverLeafAPI ------------------------------------------------------------------------------
-
-Boolean putSanctionWithHttpMessages(String businessKey, Loan loan);
-Boolean putComplianceWithHttpMessages(String businessKey, Loan loan);
-Boolean putComplianceCompanyWithHttpMessages(String businessKey, Loan loan);
-Risk getScoreWithHttpMessages(String businessKey);
+// Clientul CloverLeaf e rescris intreg: ratproxy/.../datasource/BNPParibasCloverleafAPIImpl.java

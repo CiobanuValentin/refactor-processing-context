@@ -36,9 +36,8 @@ public class ProxyResultsFetcher {
     private final ProxySourceProperties properties;
     private final ObjectMapper objectMapper;
 
-    // TODO: pune @Qualifier-ul RestClient-ului folosit acum de PartialDataFetcherPG.
-    // TODO: raspunsul se citeste cu Jackson, fiindca GeneralProxyObsDto are @JsonProperty si controllerele il scriu
-    // cu Jackson; verifica sa fie acelasi mod de citire ca in PartialDataFetcherPG.callProxyEndpoint.
+    // RestClient-ul si ObjectMapper-ul sunt cele date de configul proxy-ului, ca la PartialDataFetcherPG;
+    // raspunsul se citeste cu Jackson, la fel ca acolo.
     public ProxyResultsFetcher(RestClient restClient, ProxySourceProperties properties, ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.properties = properties;
@@ -66,7 +65,8 @@ public class ProxyResultsFetcher {
             String detail = StringUtils.isBlank(body) ? "" : ": " + StringUtils.abbreviate(body, MAX_BODY_IN_MESSAGE);
             return fail(ctx, source, "HTTP " + status + detail);
         }
-        if (StringUtils.isBlank(body)) {
+        // PartialDataFetcherPG trata la fel body-ul gol si "{}": fara date.
+        if (StringUtils.isBlank(body) || "{}".equals(body.trim())) {
             return List.of();
         }
         try {

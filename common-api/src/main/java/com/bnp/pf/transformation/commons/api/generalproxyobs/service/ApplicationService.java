@@ -18,13 +18,11 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// TODO: pachetele pentru ApplicationRequestDto, ApplicationRequestEntity, ApplicationRequestRepository si Application
-// sunt presupuse - pastreaza importurile din clasa actuala.
 import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ApplicationRequestDto;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.entity.ApplicationRequestEntity;
-import com.bnp.pf.transformation.commons.api.generalproxyobs.repository.ApplicationRequestRepository;
+import com.bnp.pf.transformation.commons.api.generalproxyobs.repo.ApplicationRequestRepository;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.utils.LocalDateTimeUtils;
 
@@ -76,7 +74,6 @@ public class ApplicationService {
     /**
      * Aplicatia salvata de saveApplicationRequest; folosita de GET-ul de rezultate din rat.
      * Tabela e cheiata doar pe business key.
-     * TODO: getApplicationJson() pe entitate este presupus.
      */
     @Transactional(readOnly = true)
     public Optional<Application> findSavedApplication(String businessKey) {

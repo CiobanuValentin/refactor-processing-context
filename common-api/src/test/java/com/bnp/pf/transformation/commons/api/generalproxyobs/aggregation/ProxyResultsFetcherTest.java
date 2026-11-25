@@ -32,6 +32,7 @@ class ProxyResultsFetcherTest {
         assertTrue(fetcher.read(ctx, ProxySource.CKI, 200, "").isEmpty());
         assertTrue(fetcher.read(ctx, ProxySource.CKI, 204, null).isEmpty());
         assertTrue(fetcher.read(ctx, ProxySource.CKI, 200, "[]").isEmpty());
+        assertTrue(fetcher.read(ctx, ProxySource.CKI, 200, "{}").isEmpty());
         assertTrue(fetcher.read(ctx, ProxySource.CKI, 200, "[null]").isEmpty());
         assertTrue(fetcher.read(ctx, ProxySource.CKI, 200, "null").isEmpty());
         assertFalse(ctx.hasErrors());

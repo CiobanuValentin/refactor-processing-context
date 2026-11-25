@@ -9,7 +9,7 @@ Clasele vechi se șterg direct, fără `@Deprecated`. Ordinea de livrare: întâ
 | `ProcessingContext`, `ProcessingContextBase`, `ArvalProcessingContext` | `ProxyContext` |
 | `CollectError`, `KafkaErrorCollector` | `ProxyContext.addError` + `ProxyResultPublisher` |
 | `GeneralNullOrEmptyCheckService` | `ProxyContextValidator` |
-| `ProcessingFailedException` și handlerul care apelează `findIn` | nimic: listenerul răspunde KO plus error |
+| `ProcessingFailedException` | nimic: listenerul răspunde KO plus error (`findIn` e apelat din `KafkaConfig` al fiecărui proxy) |
 | `PartialDataFetcher`, `PartialDataFetcherPG` | `ProxyResultsFetcher` |
 | testele claselor de mai sus | testele din `src/test` |
 
@@ -65,6 +65,10 @@ Diferențe:
 ## Mapperele și dto-urile
 
 Nu se modifică nimic: mapperele, `ProxyDtoBuilder`, `GeneralProxyObsDto` și dto-urile `Check*` rămân cum sunt. Contractul endpointurilor rămâne `GeneralProxyObsDto`, doar că se întoarce o listă. Vezi secțiunea „Mapperele existente" din [LOGIC.md](LOGIC.md) pentru punctele deschise.
+
+## Bean-uri în proxy-uri
+
+Clasele din common-api (`com.bnp...`) nu sunt găsite de component scan-ul proxy-urilor (`com.bnpp...`); fiecare proxy le declară ca bean-uri în `config/`. Clasele noi au nevoie de același lucru: `snippets/proxy-config/ProxyObsBeansConfig.java`. Din proxy se șterg `CollectErrorConfig`, `GeneralNullOrEmptyCheckServiceConfig` și `PartialDataFetcherConfig`, iar `KafkaConfig.errorHandler` se simplifică (`snippets/proxy-config/KafkaConfig-errorHandler.java`).
 
 ## Ordinea de livrare
 

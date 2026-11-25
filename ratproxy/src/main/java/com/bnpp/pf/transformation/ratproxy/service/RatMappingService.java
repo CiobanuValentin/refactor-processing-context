@@ -1,5 +1,7 @@
 package com.bnpp.pf.transformation.ratproxy.service;
 
+import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.MEDIUM_RISK_OR_ALERTS_OR_ON_HOLD;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +21,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-// TODO: pachetele pentru modelul common, client, entitati, repository-uri si modelul CloverLeaf
+// TODO: pachetele pentru modelul common, entitati, repository-uri si modelul CloverLeaf
 // (in afara de LoanMapping si datasource.model.Loan, vazute in cod) sunt presupuse.
 import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsDto;
@@ -31,7 +33,7 @@ import com.bnp.pf.transformation.commons.api.model.Organisation;
 import com.bnp.pf.transformation.commons.api.model.RiskAssessment;
 import com.bnp.pf.transformation.commons.api.model.RiskLevel;
 import com.bnp.pf.transformation.commons.api.model.ScoringResult;
-import com.bnpp.pf.transformation.ratproxy.client.BNPParibasCloverLeafAPI;
+import com.bnpp.pf.transformation.ratproxy.datasource.BNPParibasCloverLeafAPI;
 import com.bnpp.pf.transformation.ratproxy.datasource.model.ApplicantScore;
 import com.bnpp.pf.transformation.ratproxy.datasource.model.LegalEntityScore;
 import com.bnpp.pf.transformation.ratproxy.datasource.model.Loan;
@@ -45,9 +47,6 @@ import com.bnpp.pf.transformation.ratproxy.utils.mapper.LoanMapping;
 /**
  * Cei trei pasi catre CloverLeaf: sanction, compliance si score. Fiecare pas intoarce false daca a esuat,
  * dupa ce a pus o singura eroare in context; niciunul nu arunca pentru o eroare a API-ului sau de mapare.
- *
- * TODO: metodele din BNPParibasCloverLeafAPI nu mai primesc collectError / index / errorMessage / context:
- * arunca exceptia, iar eroarea se inregistreaza aici, o singura data.
  */
 @Slf4j
 @Service
@@ -55,8 +54,6 @@ import com.bnpp.pf.transformation.ratproxy.utils.mapper.LoanMapping;
 public class RatMappingService {
 
     static final String RAT_COMPLIANCE = "rat.compliance";
-    // TODO: foloseste constanta MEDIUM_RISK_OR_ALERTS_OR_ON_HOLD existenta
-    static final String MEDIUM_RISK_OR_ALERTS_OR_ON_HOLD = "MediumRiskOrAlertsOrOnHold";
     private static final String BAD_REQUEST = "400";
     private static final String INTERNAL_ERROR = "500";
     private static final String SERVICE_UNAVAILABLE = "503";

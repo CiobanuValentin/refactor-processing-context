@@ -5,8 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
-// TODO: pachetul lui BNPParibasCloverLeafAPI este presupus
-import com.bnpp.pf.transformation.ratproxy.client.BNPParibasCloverLeafAPI;
+import com.bnpp.pf.transformation.ratproxy.datasource.BNPParibasCloverLeafAPI;
 
 /** Neschimbat fata de varianta actuala. */
 @RestController

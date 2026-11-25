@@ -102,6 +102,8 @@ Stare pe surse, după comparația cu diff din IDE (legacy față de cloud):
 
 La VIS și EVA, mai multe rânduri fără erori înseamnă mai multe perechi Holder / CoHolder pe loan. Așa era și în legacy, deci nu se schimbă.
 
+Ce face cloud-ul acum când o sursă nu are date: `callProxyEndpoint` întoarce un `GeneralProxyObsDto` gol, nu `null`, iar `ProxyDtoBuilder` face din el un dto cu request `null` și `errors` `null`. Mapperele sunt deci apelate mereu, iar EVA person, EVA company și VIS adaugă rezultatele de pe loan fiindcă `errors == null`. Legătura nouă revine la comportamentul din legacy, descris mai jos.
+
 Fără niciun rând, legacy nu făcea nimic, cu două excepții: VIS punea rezultate implicite pe fiecare client și pe loan, iar CKI punea cele două rezultate goale pe loan. Legătura nouă păstrează ambele. `DNBMapper` și `EventIndicatorMapper` din cloud aruncă NPE dacă primesc `null`, deci nu sunt apelate fără rânduri.
 
 Ce a adăugat cloud-ul în aceste mappere, fără să schimbe rezultatul pe date valide: protecții la null (RVDR `verifyResponse`, SCAL `person1NullCheck` / `foundNullCheck`, DNB `getPersonalDetails`), metode extrase și, la DNB, câmpurile noi `dnbLatestAccountFiledDate` / `Period`. `addOrCreate` din SCAL, cu `List.of(...)`, e identic în legacy.
@@ -215,9 +217,9 @@ Listenerul devine cel din secțiunea 2. Serviciul propriu primește `ProxyContex
 | Eroare de la API-ul extern | serviciul de mapare o întoarce ca `List<ErrorHandler>`; răspuns KO cu error | depinde de proxy | KO cu error |
 | Excepție neprinsă | iese din listener către containerul Kafka | `ProcessingFailedException` (vis, rat); sed publică doar error | status KO plus error |
 
-În listenerele legacy nu există niciun handler. Ce se întâmplă cu o excepție neprinsă depinde de `kafkaListenerContainerFactory` din common, care nu a fost văzut. Camunda nu primește niciun răspuns de la proxy în acest caz.
+În listenerele legacy nu există niciun handler. În cloud, fiecare proxy are în `KafkaConfig` un `DefaultErrorHandler`: reîncearcă mesajul de `maxAttempts` ori (`FixedBackOff`), apoi caută `ProcessingContext` prin `ProcessingFailedException.findIn` și publică doar semnalele de error, fără status.
 
-Decis: `ProcessingFailedException` se scoate, iar `catch`-ul răspunde cu status KO plus error. Când excepția apare înainte de `updateApplicationStatus`, statusul aplicației din baza de date nu mai e actualizat.
+Decis: `ProcessingFailedException` se scoate, iar `catch`-ul din listener răspunde cu status KO plus error. Handlerul din `KafkaConfig` rămâne doar cu reîncercările și un log (`snippets/proxy-config/KafkaConfig-errorHandler.java`); la el ajunge doar o excepție de la publicare. Când excepția apare înainte de `updateApplicationStatus`, statusul aplicației din baza de date nu mai e actualizat.
 
 ## 11. Ce a fost verificat
 

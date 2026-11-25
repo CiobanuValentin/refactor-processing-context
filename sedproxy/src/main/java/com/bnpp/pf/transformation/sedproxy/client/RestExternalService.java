@@ -1,6 +1,5 @@
 package com.bnpp.pf.transformation.sedproxy.client;
 
-// TODO: pastreaza importul actual pentru ARVAL_NL_FLOW_ID_PREFIX
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.ARVAL_NL_FLOW_ID_PREFIX;
 
 import java.nio.charset.StandardCharsets;

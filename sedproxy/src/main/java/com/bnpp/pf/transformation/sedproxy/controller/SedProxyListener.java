@@ -3,7 +3,6 @@ package com.bnpp.pf.transformation.sedproxy.controller;
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.CORRELATION_HEADER;
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.KO;
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.OK;
-// TODO: SCOPE_KEY si SED_DATA_SCOPE - pastreaza importul din listenerul actual
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.SCOPE_KEY;
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.SED_DATA_SCOPE;
 

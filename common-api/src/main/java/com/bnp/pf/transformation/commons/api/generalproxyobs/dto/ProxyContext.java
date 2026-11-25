@@ -11,8 +11,7 @@ import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 
-// TODO: importurile pentru clasele Avro, Application, ErrorHandler, Error si constanta
-// ARVAL_NL_FLOW_ID_PREFIX sunt presupuse - corecteaza-le din IDE.
+// TODO: importurile pentru clasele Avro, ErrorHandler si Error sunt presupuse - corecteaza-le din IDE.
 import com.bnp.pf.transformation.avro.ArvalOrchestrationMessage;
 import com.bnp.pf.transformation.avro.ArvalSignal;
 import com.bnp.pf.transformation.avro.OrchestrationMessage;

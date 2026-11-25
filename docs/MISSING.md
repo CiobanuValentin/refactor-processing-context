@@ -6,12 +6,8 @@
 |---|---|---|---|
 | 3 | legacy proxyobs ratproxy | `RatMappingService.processRatSanctionDataAsync`, `getScoreResultAsync` | de confirmat că compliance nu era apelat nicăieri |
 | 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
-| 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) |
-| 5 | cloud common-api | `BKRVISMapper.checkErrors` | ce adaugă pe loan |
-| 6 | cloud common-api | clasa care apelează `ProcessingFailedException.findIn` | se șterge odată cu excepția |
-| 7 | cloud common-api | `ApplicationRequestEntity`, `ApplicationRequestDto`, `ApplicationRequestRepository` | pachete și `getApplicationJson()` |
-| 8 | cloud common-api | `ProxyObsConstant`, toată clasa | constante presupuse |
-| 10 | cloud ratproxy | clientul CloverLeaf, `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
+| 10 | cloud ratproxy | `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
+| 10b | cloud, orice proxy | o clasă din `config/` (ex. `PartialDataFetcherConfig`, `ApplicationServiceConfig`) și proprietățile cu URL-urile surselor | cum se declară bean-urile și cum se numesc proprietățile |
 | 11 | cloud sedproxy | `areParametersProvided` (condiția completă), `ExpertiseReturn` | linie tăiată; câmp presupus |
 | 12 | legacy + cloud | cum ajunge `rat.compliance` de la rat la sed | propunerea e parcată în `pending/` |
 
