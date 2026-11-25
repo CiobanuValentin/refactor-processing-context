@@ -64,7 +64,7 @@ Până nu faci această înlocuire, `ProxyResultMapperConfig` nu compilează (`L
 După înlocuire, celelalte apeluri ale lui `mapCKIData` (7 usages în IDE) nu mai compilează:
 
 - cele din clasele care se șterg oricum (`PartialDataFetcher`, `ApplicationBuilder` vechi) dispar odată cu ele;
-- în teste, `mapCKIData(dto, application)` devine `mapCKIData(List.of(dto), application)`, iar `mapCKIData(null, application)` rămâne valid, dar cere cast: `mapCKIData((List<CheckCkiPersonDto>) null, application)` nu e necesar dacă există o singură metodă cu acest nume.
+- în teste, `mapCKIData(dto, application)` devine `mapCKIData(List.of(dto), application)`; `mapCKIData(null, application)` rămâne valid așa cum e.
 
 Nu e nevoie de importuri noi: `List`, `ArrayList` și `Objects` sunt deja folosite în clasă.
 
