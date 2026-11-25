@@ -1,11 +1,12 @@
 // De pus in common-api. Inlocuieste corpul lui ApplicationBuilderPG.buildApplication: pentru fiecare sursa,
-// acelasi ProxyDtoBuilder construieste dto-ul tipizat si acelasi mapper il pune pe aplicatie.
-// Mapperele si ProxyDtoBuilder NU se modifica.
+// ProxyDtoBuilder construieste dto-urile tipizate si mapperul le pune pe aplicatie.
 //
-// DESCHIS, de discutat cu poze din legacy inainte de integrare:
-//  - CKI, EVA person si VIS adauga la fiecare apel risk assessment-uri si pe loan (Holder / CoHolder).
-//    Daca o sursa intoarce mai multe randuri pentru o aplicatie, apelul per rand le-ar dubla pe loan.
-//  - Semnaturile map...Data(dto, application) pentru SCAL, RVDR si EventIndicator sunt presupuse.
+// In legacy (common-api-1.23.jar) fetcher-ul intorcea List<...> pentru fiecare sursa si mapperele primeau lista.
+// In cloud mapperele au fost schimbate sa primeasca un singur dto.
+//  - CKI: mapCKIData e readus la varianta din legacy (BKRCKIMapper-mapCKIData.java) si primeste lista.
+//  - EVA company: primeste lista si in cloud.
+//  - Restul: deocamdata un apel per rand (DtoBackedResultMapper). De inlocuit cu varianta pe lista din legacy
+//    pe masura ce se vad mapperele din jar; pana atunci VIS si EVA person pot dubla rezultatele de pe loan.
 
 @Configuration
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ProxyResultMapperConfig {
 
     @Bean
     ProxyResultMapper ckiResultMapper(BKRCKIMapper mapper) {
-        return new DtoBackedResultMapper<>(ProxySource.CKI, dtoBuilder::buildCheckCkiPersonDto, mapper::mapCKIData);
+        return listMapper(ProxySource.CKI, dtoBuilder::buildCheckCkiPersonDto, mapper::mapCKIData);
     }
 
     @Bean
@@ -58,18 +59,23 @@ public class ProxyResultMapperConfig {
         return new DtoBackedResultMapper<>(ProxySource.EVENT_INDICATOR, dtoBuilder::buildCheckEventIndicatorDto, mapper::mapEventIndicatorData);
     }
 
-    // EVA company: mapperul primeste deja o lista (inainte: Collections.singletonList(un singur dto)).
     @Bean
     ProxyResultMapper evaCompanyResultMapper(BKREVAMapper mapper) {
+        return listMapper(ProxySource.EVA_COMPANY, dtoBuilder::buildCheckEvaCompanyDto, mapper::mapEVACompanyData);
+    }
+
+    /** Ca in legacy: mapperul primeste toate randurile sursei; fara randuri primeste o lista goala. */
+    private static <D> ProxyResultMapper listMapper(ProxySource source, Function<GeneralProxyObsDto, D> toDto,
+                                                    BiConsumer<List<D>, Application> mapper) {
         return new ProxyResultMapper() {
             @Override
             public ProxySource source() {
-                return ProxySource.EVA_COMPANY;
+                return source;
             }
 
             @Override
             public void apply(List<GeneralProxyObsDto> results, Application application, ProxyContext ctx) {
-                mapper.mapEVACompanyData(results.stream().map(dtoBuilder::buildCheckEvaCompanyDto).toList(), application);
+                mapper.accept(results.stream().map(toDto).toList(), application);
             }
         };
     }

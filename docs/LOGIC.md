@@ -90,11 +90,13 @@ Mapperele din `applicationbuilder.utils` și `ProxyDtoBuilder` **nu se modifică
 
 `snippets/common-api/ProxyResultMapperConfig.java` face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Singura diferență: sursa poate întoarce mai multe rânduri, iar mapperul e apelat pentru fiecare.
 
-Deschis, de lămurit cu poze din legacy:
+Stare pe surse:
 
-- CKI salvează un rând per client eligibil (confirmat). Pentru celelalte surse nu se știe încă.
-- CKI, EVA person și VIS adaugă la fiecare apel risk assessment-uri și pe loan. Apelate per rând, le-ar dubla.
-- Ce făcea legacy cu rezultatele de pe loan (`mappingService.checkCki`, `checkVis` etc. nu au fost văzute).
+| Sursă | Legătura | Stare |
+|---|---|---|
+| CKI | listă, `mapCKIData` din legacy | confirmat cu jarul legacy |
+| EVA company | listă | neschimbat în cloud |
+| SCAL ×3, DNB, RVDR, VIS, EVA person, EventIndicator | un apel per rând | provizoriu, până se văd mapperele din jarul legacy |
 
 ### Salvarea aplicației
 
@@ -141,9 +143,9 @@ Ordinea surselor diferă:
 | Legacy | SCAL ×3, DNB, RVDR, VIS, EVA person, EVA company, CKI, EventIndicator |
 | Cloud (`ApplicationBuilderPG`) | SCAL ×3, DNB, CKI, RVDR, VIS, EVA company, EVA person, EventIndicator |
 
-Tot diferit: în legacy `mapEVACompanyData(fetcher.getEvaCompanyData(...))` primea direct ce întorcea fetcher-ul (deci o listă); în cloud e `singletonList(un dto)`.
+**Legacy lucra cu liste.** `PartialDataFetcher` întorcea `List<...>` pentru fiecare sursă (toate rândurile pentru businessKey și flowId, sau `null`), iar mapperele primeau lista. `BKRCKIMapper.mapCKIData(List<CheckCkiPersonDto>, Application)` parcurge toate rândurile, pune rezultatul pe fiecare client și adaugă rezultatele de pe loan o singură dată. În cloud, fetcher-ul întoarce un singur dto și mapperele au fost schimbate să primească unul; de aici se pierd rezultatele clienților de după primul.
 
-Nelămurit încă: ce întorceau în legacy `fetcher.getCkiData` (un rând sau toate) și cum arăta `BKRCKIMapper.mapCKIData`. `createRiskAssessments(loan, ckiResponse)` din proxy-ul cki e folosit doar în teste.
+Ce se face: `mapCKIData` se readuce la varianta din legacy (`snippets/common-api/BKRCKIMapper-mapCKIData.java`). Restul din `BKRCKIMapper` văzut în jar (`createCkiResult`, `createEachCkiResult`, `collectAllResponses`) e identic cu cloud-ul. Pentru celelalte mappere, variantele pe listă din legacy încă nu au fost văzute.
 
 ## 7. Rat
 
