@@ -106,7 +106,7 @@ Fără niciun rând, legacy nu făcea nimic, cu două excepții: VIS punea rezul
 
 Ce a adăugat cloud-ul în aceste mappere, fără să schimbe rezultatul pe date valide: protecții la null (RVDR `verifyResponse`, SCAL `person1NullCheck` / `foundNullCheck`, DNB `getPersonalDetails`), metode extrase și, la DNB, câmpurile noi `dnbLatestAccountFiledDate` / `Period`. `addOrCreate` din SCAL, cu `List.of(...)`, e identic în legacy.
 
-Diferențe găsite în `BKRCKIMapper` (51 în diff, văzute doar o parte):
+Diferențe găsite în `BKRCKIMapper` (51 în diff; restul, confirmat de Valentin, sunt doar `.collect(toList())` → `.toList()`):
 
 - `mapCKIData`: listă în legacy, un singur dto în cloud. Se readuce.
 - `collectAllResponses`: în cloud, ramura a doua are argumentele inversate și pierde creditele și scorurile persoanei cu aliasuri. Corecția: `snippets/common-api/BKRCKIMapper-collectAllResponses.java`.

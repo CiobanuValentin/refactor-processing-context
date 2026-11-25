@@ -4,7 +4,6 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 2 | diff legacy / cloud | `BKRCKIMapper`: `createRiskAssessments`, `getCreditLoans(BkrPerson)` cu baloanele, `getInstallment`, `getDuration` | restul celor 51 de diferențe, doar unde nu e simplă reformatare |
 | 3 | legacy proxyobs ratproxy | `RatMappingService.processRatSanctionDataAsync`, `getScoreResultAsync` | de confirmat că compliance nu era apelat nicăieri |
 | 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
 | 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) |
