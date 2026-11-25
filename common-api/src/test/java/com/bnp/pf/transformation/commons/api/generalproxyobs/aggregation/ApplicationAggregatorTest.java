@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.bnp.pf.transformation.avro.OrchestrationMessage;
 import com.bnp.pf.transformation.avro.Signal;
+import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsDto;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 
@@ -21,20 +22,20 @@ class ApplicationAggregatorTest {
     private final List<String> applied = new ArrayList<>();
     private final Set<ProxySource> failingFetch = EnumSet.noneOf(ProxySource.class);
 
-    private final ProxyResultsFetcher fetcher = new ProxyResultsFetcher(null, new ProxySourceProperties()) {
+    private final ProxyResultsFetcher fetcher = new ProxyResultsFetcher(null, new ProxySourceProperties(), null) {
         @Override
-        public List<ProxyResultDto> fetch(ProxyContext ctx, ProxySource source) {
+        public List<GeneralProxyObsDto> fetch(ProxyContext ctx, ProxySource source) {
             if (failingFetch.contains(source)) {
                 ctx.addError("503", source + " down");
                 return List.of();
             }
-            return List.of(new ProxyResultDto(), new ProxyResultDto());
+            return List.of(new GeneralProxyObsDto(), new GeneralProxyObsDto());
         }
     };
 
     private final ApplicationAggregator aggregator = new ApplicationAggregator(fetcher,
             List.of(mapper(ProxySource.SCAL_PERSON, false), mapper(ProxySource.CKI, false),
-                    mapper(ProxySource.VIS, true), mapper(ProxySource.RAT_COMPLIANCE, false)));
+                    mapper(ProxySource.VIS, true)));
 
     @Test
     void allSourcesOk_appliedInTheGivenOrder() {
@@ -74,16 +75,6 @@ class ApplicationAggregatorTest {
         assertTrue(ctx.getErrors().get(0).getErrorMessage().contains("No mapper registered for DNB"));
     }
 
-    @Test
-    void skipCommand_removesTheSource() {
-        ProxyContext ctx = context();
-        ctx.getApplication().setSkipCommand(List.of("rat.compliance"));
-
-        assertTrue(aggregator.enrich(ctx, List.of(ProxySource.RAT_COMPLIANCE, ProxySource.CKI)));
-
-        assertEquals(List.of("CKI:2"), applied);
-    }
-
     private ProxyResultMapper mapper(ProxySource source, boolean failing) {
         return new ProxyResultMapper() {
             @Override
@@ -92,7 +83,7 @@ class ApplicationAggregatorTest {
             }
 
             @Override
-            public void apply(List<ProxyResultDto> results, Application application, ProxyContext ctx) {
+            public void apply(List<GeneralProxyObsDto> results, Application application, ProxyContext ctx) {
                 if (failing) {
                     throw new IllegalStateException("boom");
                 }

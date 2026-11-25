@@ -73,11 +73,11 @@ Diferențe față de legacy:
 | | Legacy | Cloud | Nou |
 |---|---|---|---|
 | De unde vin rezultatele | documentul comun din Elasticsearch | GET către fiecare proxy (`PartialDataFetcherPG`) | GET către fiecare proxy (`ProxyResultsFetcher`) |
-| Câte rezultate | toate | unul per aplicație (`findTop...OrderByCreationDesc`) | listă, unul per persoană sau companie |
+| Câte rezultate | toate | unul per aplicație (`findTop...OrderByCreationDesc`) | listă de `GeneralProxyObsDto`, toate rândurile |
 | Rezultat lipsă | câmpul e sărit, fără eroare | risk assessment fabricat sau `"false"` | fără eroare, fără rezultat fabricat |
 | Apel eșuat | nu există cazul | eroare în context și excepție | eroare în context, răspuns KO |
-| `rat.compliance` în sed | din Elasticsearch | nu ajunge deloc | GET `/ratCompliance/results` din rat |
-| Ordinea surselor | - | scal ×3, dnb, cki, rvdr, vis, eva ×2, event indicator | aceeași; sed adaugă rat la final |
+| `rat.compliance` în sed | din Elasticsearch | nu ajunge deloc | deschis; propunerea e parcată în `pending/` |
+| Ordinea surselor | - | scal ×3, dnb, cki, rvdr, vis, eva ×2, event indicator | aceeași |
 
 Diferențe față de legacy:
 
@@ -86,23 +86,19 @@ Diferențe față de legacy:
 
 ### Mapperele existente
 
-Mapperele din `applicationbuilder.utils` nu se rescriu. `snippets/common-api/ProxyResultMapperConfig.java` le leagă de agregare, câte un bean per sursă. Dto-urile tipizate se construiesc cu `ProxyDtoBuilder`-ul existent, deci tratarea răspunsului gol și câmpul `errors` rămân la fel.
+Mapperele din `applicationbuilder.utils` și `ProxyDtoBuilder` **nu se modifică**. Regula de lucru: logica de mapare rămâne cea din cloud până e comparată, sursă cu sursă, cu legacy.
 
-| Sursă | Cum e apelat mapperul | Schimbare în mapper |
-|---|---|---|
-| SCAL ×3, DNB, RVDR, EventIndicator | o dată per rezultat; fără rezultate, o dată cu `null` | niciuna |
-| VIS | la fel, deocamdată | de confirmat după `checkErrors` |
-| CKI | o dată, cu lista | `mapCKIData` primește lista |
-| EVA person | o dată, cu lista | `mapEVAPersonData` primește lista |
-| EVA company | o dată, cu lista | niciuna, primea deja listă |
+`snippets/common-api/ProxyResultMapperConfig.java` face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Singura diferență: sursa poate întoarce mai multe rânduri, iar mapperul e apelat pentru fiecare.
 
-CKI și EVA person primesc lista fiindcă adaugă la fiecare apel risk assessment-uri pe loan (Holder / CoHolder); apelate per persoană ar produce duplicate.
+Deschis, de lămurit cu poze din legacy:
 
-Comportamentul mapperelor rămâne cel din cloud, inclusiv ramurile de „fără date". Rândul „Rezultat lipsă" din tabelul de mai sus se aplică doar mapperelor noi (`RatComplianceMapper`).
+- Câte rânduri salvează fiecare proxy sursă pentru o aplicație (unul per persoană sau unul singur).
+- CKI, EVA person și VIS adaugă la fiecare apel risk assessment-uri și pe loan. Apelate per rând, le-ar dubla.
+- Ce făcea legacy cu rezultatele de pe loan (`mappingService.checkCki`, `checkVis` etc. nu au fost văzute).
 
 ### Salvarea aplicației
 
-`ApplicationService.saveApplicationRequest(ProxyContext)` (vezi [COMMON-API.md](COMMON-API.md)) păstrează logica existentă: dacă există deja un rând pentru business key, actualizează doar `modifiedDate` și `modifiedBy`. JSON-ul nu se rescrie. Consecință pentru GET-ul din rat: la o a doua procesare a aceluiași business key, sed primește rezultatele rat de la prima.
+`ApplicationService.saveApplicationRequest(ProxyContext)` (vezi [COMMON-API.md](COMMON-API.md)) păstrează logica existentă: dacă există deja un rând pentru business key, actualizează doar `modifiedDate` și `modifiedBy`. JSON-ul nu se rescrie.
 
 ## 6. Rat
 
@@ -125,7 +121,7 @@ Neschimbate, marcate `TODO`: ramura `isCollateralIsPrivateUse` → endpointul de
 
 ## 7. Sed
 
-Pași: agregare (inclusiv rat) → salvare → loan → clienți/companii → parametri SED → mapare → DES → `bnpOutputMessage`.
+Pași: agregare → salvare → loan → clienți/companii → parametri SED → mapare → DES → `bnpOutputMessage`.
 
 | | Legacy | Cloud | Nou |
 |---|---|---|---|

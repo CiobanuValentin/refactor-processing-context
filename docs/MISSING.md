@@ -4,32 +4,33 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 0 | common-api | clasa care apelează `ProcessingFailedException.findIn` | trebuie ștearsă odată cu excepția |
-| 1 | common-api | `BKRVISMapper.checkErrors` și `createRiskAssessments(loan, ...)` | dacă adaugă pe loan la fiecare apel, VIS trebuie trecut pe listă, ca CKI |
-| 2 | common-api | `ApplicationRequestEntity`, `ApplicationRequestDto`, `ApplicationRequestRepository` | de confirmat `getApplicationJson()` și pachetele |
-| 3 | ratproxy | clientul CloverLeaf (`BNPParibasCloverLeafAPI` + implementarea), versiunea cloud | semnăturile se schimbă; nu e rescris |
-| 4 | ratproxy | `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
-| 5 | sedproxy | `SedProcessorService.areParametersProvided`, condiția completă | linia era tăiată |
-| 6 | sedproxy | `ExpertiseReturn` | de confirmat câmpul `errorMessage` din builder |
-| 7 | common-api | `ProxyObsConstant`, toată clasa | constante presupuse: `ARVAL_NL_FLOW_ID_PREFIX`, `SCOPE_KEY`, `SED_DATA_SCOPE` |
-| 8 | common-api | configurarea `kafkaListenerContainerFactory` | ce se întâmplă când publicarea eșuează și excepția iese din listener |
-| 9 | common-api | `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper`: doar semnăturile `map...Data` | presupuse `(dto, application)` |
-| 10 | orice proxy sursă | entitatea și repository-ul rezultatului (ex. `CheckCkiEntity`) | pentru endpointul de listă |
-| 11 | bkrvisproxy / rvdrproxy | `CreditCheckService.checkCredit` sau echivalentul | de mutat pe `ProxyContext` |
+| 1 | legacy bkrckiproxy | `MappingService.checkCki`, toată metoda | ce scria legacy pe client și pe loan; baza de comparație pentru `BKRCKIMapper` |
+| 2 | cloud bkrckiproxy | `MappingService` (salvarea și citirea), entitatea, repository-ul, controllerul | câte rânduri există per aplicație și cum se mapează în `GeneralProxyObsDto` |
+| 3 | cloud common-api | `GeneralProxyObsDto`, toată clasa | contractul endpointurilor |
+| 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) și ce întoarce când nu sunt date |
+| 5 | cloud common-api | `BKRVISMapper.checkErrors` | ce adaugă pe loan |
+| 6 | cloud common-api | clasa care apelează `ProcessingFailedException.findIn` | se șterge odată cu excepția |
+| 7 | cloud common-api | `ApplicationRequestEntity`, `ApplicationRequestDto`, `ApplicationRequestRepository` | pachete și `getApplicationJson()` |
+| 8 | cloud common-api | `ProxyObsConstant`, toată clasa | constante presupuse |
+| 9 | cloud common-api | semnăturile `map...Data` din `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper` | presupuse `(dto, application)` |
+| 10 | cloud ratproxy | clientul CloverLeaf, `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
+| 11 | cloud sedproxy | `areParametersProvided` (condiția completă), `ExpertiseReturn` | linie tăiată; câmp presupus |
+| 12 | legacy + cloud | cum ajunge `rat.compliance` de la rat la sed | propunerea e parcată în `pending/` |
+
+După CKI, aceeași pereche (legacy `mappingService.checkX` + cloud mapper) pentru VIS, EVA, RVDR, SCAL, DNB și EventIndicator.
 
 ## Transcrieri de referință nefăcute încă
 
 În `reference/` sunt doar clasele recitite acum. Restul pozelor nu au fost transcrise:
 
 - legacy: rat (listener, mapping, client CloverLeaf); sed (listener, `SedProcessorService`, `SedMappingService`);
-- cloud: `PartialDataFetcherPG`, cele 7 mappere, `ProxyDtoBuilder`, `ApplicationBuilderPG` din sed, serviciile și clientul sed, `MappingService` din cki.
+- cloud: `PartialDataFetcherPG`, `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper`, restul din `BKRCKIMapper`, `ApplicationBuilderPG` din sed, serviciile și clientul sed, `MappingService` din cki.
 
 Comparația din `LOGIC.md` pentru aceste clase se bazează pe analiza din conversație, nu pe o recitire.
 
 ## De confirmat cu echipa
 
 0. `ProxyDtoBuilder.buildCheckEvaPersonDto` citește răspunsul din `getResponsePersonJson()`, același câmp ca SCAL person. E intenționat?
-0. La reprocesarea aceluiași business key, JSON-ul aplicației salvate nu se rescrie. E acceptabil ca sed să primească rezultatele rat de la prima procesare?
 1. Arval NL: proxy-urile sursă rulează pe aceste flow-uri sau rezultatele vin în JSON-ul aplicației?
 2. Arval trebuie să primească și status KO?
 3. Ramura `isCollateralIsPrivateUse` din rat e intenționată?

@@ -32,7 +32,8 @@ Rămân neatinse: `SCALMapper`, `DNBMapper`, `RVDRMapper`, `EventIndicatorMapper
 | `pc.getSignalProperties()` / `getApplicationJson()` | `ctx.getProperties()` / `ctx.property(APPLICATION)` |
 | `kafkaPublisher.publishToKafka(statusTopic, ...)` + bucla pe `errorSignalMap` | `proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version)` |
 | `throw new ProcessingFailedException(pc, ...)` | `ctx.addUnexpectedError(e)` în `catch`, apoi publicare |
-| `fetcher.getCkiData(...)` și celelalte 9 | `proxyResultsFetcher.fetch(ctx, ProxySource.CKI)` |
+| `fetcher.getCkiData(...)` și celelalte 9 | `proxyResultsFetcher.fetch(ctx, ProxySource.CKI)`, care întoarce `List<GeneralProxyObsDto>` |
+| `proxyDtoBuilder.buildCheckCkiPersonDto(dto)` + `ckiMapper.mapCKIData(...)` | aceleași două apeluri, legate în `ProxyResultMapperConfig` |
 | `applicationBuilderPG.buildApplication(pc)` (în sed și rat) | `applicationAggregator.enrich(ctx, SOURCES)` |
 
 ## ApplicationService
@@ -44,7 +45,7 @@ Clasa e rescrisă întreagă în `src/main`.
 | `saveApplicationRequest(application, message, applicationJson, pc)` | `saveApplicationRequest(ctx)` |
 | `arvalSaveApplicationRequest(application, arvalMessage, applicationJson, apc)` | `saveApplicationRequest(ctx)` |
 | `updateApplicationStatus(businessKey, status)` | neschimbată |
-| - | `findSavedApplication(businessKey)` (pentru GET-ul din rat) |
+| - | `findSavedApplication(businessKey)` (nefolosită deocamdată; ținea de propunerea parcată în `pending/`) |
 
 De unde vin acum valorile:
 
@@ -61,15 +62,14 @@ Diferențe:
 - Fără metadata, cea veche arunca NPE; acum `createdBy` devine `"null"`, iar data e cea curentă.
 - Entitatea nu mai e scrisă în loguri, doar business key-ul.
 
-## Mapperele
+## Mapperele și dto-urile
 
-Vezi secțiunea „Mapperele existente" din [LOGIC.md](LOGIC.md). Pe scurt: se schimbă doar `BKRCKIMapper.mapCKIData` și `BKREVAMapper.mapEVAPersonData`, care primesc lista întreagă. Legătura cu agregarea e în `snippets/common-api/ProxyResultMapperConfig.java`.
+Nu se modifică nimic: mapperele, `ProxyDtoBuilder`, `GeneralProxyObsDto` și dto-urile `Check*` rămân cum sunt. Contractul endpointurilor rămâne `GeneralProxyObsDto`, doar că se întoarce o listă. Vezi secțiunea „Mapperele existente" din [LOGIC.md](LOGIC.md) pentru punctele deschise.
 
 ## Ordinea de livrare
 
 1. **common-api**: clasele noi, `ApplicationService` rescrisă, cele două metode de mapper, ștergerea claselor vechi. Un proxy nemigrat nu mai compilează cu versiunea nouă, deci rămâne pe cea veche până e migrat.
 2. **Proxy-urile sursă** (cki, vis, eva, rvdr, scal, dnb, event indicator): listener nou, endpoint de listă, ștergerea `KafkaPublisher`-ului local.
-3. **rat**: are nevoie de endpointurile de listă din pasul 2.
-4. **sed**: are nevoie de pasul 2 și de GET-ul din rat.
+3. **rat** și **sed**: au nevoie de endpointurile de listă din pasul 2.
 
 Endpointul vechi, cu un singur rezultat, trebuie păstrat în fiecare proxy sursă până când rat și sed sunt amândouă migrate.

@@ -1,5 +1,6 @@
 package com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,16 +11,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
-import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
+import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsDto;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 
 /**
- * Citeste rezultatele unui alt proxy pentru aplicatia din context. Inlocuieste cele 10 metode din PartialDataFetcherPG.
+ * Citeste rezultatele unui alt proxy pentru aplicatia din context: o lista de GeneralProxyObsDto, acelasi dto
+ * pe care endpointurile il intorc si acum, dar pentru toate randurile aplicatiei, nu doar pentru ultimul.
+ * Inlocuieste cele 10 metode din PartialDataFetcherPG.
+ *
  * Nu arunca: orice esec devine o eroare in context si o lista goala, iar apelantul raspunde KO.
  */
 @Slf4j
@@ -31,15 +34,18 @@ public class ProxyResultsFetcher {
 
     private final RestClient restClient;
     private final ProxySourceProperties properties;
-    private final Gson gson = GsonInstance.createGson();
+    private final ObjectMapper objectMapper;
 
-    // TODO: pune @Qualifier-ul RestClient-ului folosit acum de PartialDataFetcherPG
-    public ProxyResultsFetcher(RestClient restClient, ProxySourceProperties properties) {
+    // TODO: pune @Qualifier-ul RestClient-ului folosit acum de PartialDataFetcherPG.
+    // TODO: raspunsul se citeste cu Jackson, fiindca GeneralProxyObsDto are @JsonProperty si controllerele il scriu
+    // cu Jackson; verifica sa fie acelasi mod de citire ca in PartialDataFetcherPG.callProxyEndpoint.
+    public ProxyResultsFetcher(RestClient restClient, ProxySourceProperties properties, ObjectMapper objectMapper) {
         this.restClient = restClient;
         this.properties = properties;
+        this.objectMapper = objectMapper;
     }
 
-    public List<ProxyResultDto> fetch(ProxyContext ctx, ProxySource source) {
+    public List<GeneralProxyObsDto> fetch(ProxyContext ctx, ProxySource source) {
         String url = properties.getUrls().get(source);
         if (StringUtils.isBlank(url)) {
             return fail(ctx, source, "no URL configured");
@@ -55,7 +61,7 @@ public class ProxyResultsFetcher {
     }
 
     /** Statusul se verifica inaintea continutului; body-ul a fost deja citit o singura data. */
-    List<ProxyResultDto> read(ProxyContext ctx, ProxySource source, int status, String body) {
+    List<GeneralProxyObsDto> read(ProxyContext ctx, ProxySource source, int status, String body) {
         if (status < 200 || status >= 300) {
             String detail = StringUtils.isBlank(body) ? "" : ": " + StringUtils.abbreviate(body, MAX_BODY_IN_MESSAGE);
             return fail(ctx, source, "HTTP " + status + detail);
@@ -64,20 +70,20 @@ public class ProxyResultsFetcher {
             return List.of();
         }
         try {
-            ProxyResultsDto dto = gson.fromJson(body, ProxyResultsDto.class);
-            if (dto == null || dto.getResults() == null) {
+            List<GeneralProxyObsDto> parsed = objectMapper.readerForListOf(GeneralProxyObsDto.class).readValue(body);
+            if (parsed == null) {
                 return List.of();
             }
-            List<ProxyResultDto> results = new ArrayList<>(dto.getResults());
+            List<GeneralProxyObsDto> results = new ArrayList<>(parsed);
             results.removeIf(Objects::isNull);
             log.info("{} returned {} result(s) for flow id {}", source, results.size(), ctx.getFlowId());
             return results;
-        } catch (JsonSyntaxException e) {
+        } catch (IOException e) {
             return fail(ctx, source, "invalid response: " + e.getMessage());
         }
     }
 
-    private List<ProxyResultDto> fail(ProxyContext ctx, ProxySource source, String reason) {
+    private List<GeneralProxyObsDto> fail(ProxyContext ctx, ProxySource source, String reason) {
         String message = "Unable to get " + source + " results for business key " + ctx.getBusinessKey()
                 + " and flow ID " + ctx.getFlowId() + ": " + reason;
         log.error(message);

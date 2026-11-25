@@ -8,13 +8,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsDto;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 class DtoBackedResultMapperTest {
 
     private final List<String> calls = new ArrayList<>();
     private final DtoBackedResultMapper<String> mapper = new DtoBackedResultMapper<>(ProxySource.CKI,
-            result -> "dto:" + result.getResponseJson(), (dto, application) -> calls.add(String.valueOf(dto)));
+            result -> "dto:" + result.getFlowId(), (dto, application) -> calls.add(String.valueOf(dto)));
 
     @Test
     void existingMapperIsCalledOnceForEachResult() {
@@ -35,9 +36,9 @@ class DtoBackedResultMapperTest {
         assertEquals(ProxySource.CKI, mapper.source());
     }
 
-    private static ProxyResultDto result(String responseJson) {
-        ProxyResultDto result = new ProxyResultDto();
-        result.setResponseJson(responseJson);
+    private static GeneralProxyObsDto result(String flowId) {
+        GeneralProxyObsDto result = new GeneralProxyObsDto();
+        result.setFlowId(flowId);
         return result;
     }
 }

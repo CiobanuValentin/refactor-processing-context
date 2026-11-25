@@ -15,6 +15,13 @@ Clase noi pentru common-api, sedproxy, ratproxy și rvdrproxy, scrise după poze
 | `ratproxy/` | listener, `RatProcessingService`, `RatMappingService`, GET-ul de rezultate, test | ratproxy |
 | `rvdrproxy/` | `IntegrityCheckService` | rvdrproxy |
 | `snippets/` | fragmente de aplicat în alte clase (vis, cki, rat) | nu se compilează |
+| `pending/` | propuneri necomparate cu legacy, scoase din flux | nu se integrează |
 | `reference/` | codul existent, transcris din poze, doar ca exemplu | nu se integrează |
 
 Clasele din common folosesc pachetul `com.bnp...`. Sed și rat folosesc `com.bnpp...`; rvdr și vis folosesc `com.bnp...`.
+
+## Reguli de lucru
+
+- Logica de mapare (mapperele din common, `ProxyDtoBuilder`, serviciile de mapare din proxy-uri) nu se modifică fără o comparație cu legacy, discutată pe poze.
+- Fiecare rând de poze primit se transcrie în `reference/`, ca să rămână codul și aici.
+- Clasele vechi se șterg direct, fără `@Deprecated`.

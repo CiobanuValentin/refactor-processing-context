@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsDto;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 
@@ -38,17 +39,13 @@ public class ApplicationAggregator {
     public boolean enrich(ProxyContext ctx, Collection<ProxySource> sources) {
         Application application = ctx.getApplication();
         for (ProxySource source : sources) {
-            if (isSkipped(application, source)) {
-                log.info("{} skipped for flow id {}", source, ctx.getFlowId());
-                continue;
-            }
             ProxyResultMapper mapper = mappers.get(source);
             if (mapper == null) {
                 ctx.addError(INTERNAL_ERROR, "No mapper registered for " + source);
                 continue;
             }
             int errorsBefore = ctx.getErrors().size();
-            List<ProxyResultDto> results = fetcher.fetch(ctx, source);
+            List<GeneralProxyObsDto> results = fetcher.fetch(ctx, source);
             if (ctx.getErrors().size() == errorsBefore) {
                 apply(mapper, results, application, ctx);
             }
@@ -56,7 +53,7 @@ public class ApplicationAggregator {
         return !ctx.hasErrors();
     }
 
-    private void apply(ProxyResultMapper mapper, List<ProxyResultDto> results, Application application, ProxyContext ctx) {
+    private void apply(ProxyResultMapper mapper, List<GeneralProxyObsDto> results, Application application, ProxyContext ctx) {
         try {
             mapper.apply(results, application, ctx);
         } catch (RuntimeException e) {
@@ -65,10 +62,5 @@ public class ApplicationAggregator {
             log.error(message, e);
             ctx.addError(INTERNAL_ERROR, message);
         }
-    }
-
-    private static boolean isSkipped(Application application, ProxySource source) {
-        List<String> skipCommands = application == null ? null : application.getSkipCommand();
-        return source.skipCommand() != null && skipCommands != null && skipCommands.contains(source.skipCommand());
     }
 }

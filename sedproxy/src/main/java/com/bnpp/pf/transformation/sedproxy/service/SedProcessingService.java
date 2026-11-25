@@ -27,12 +27,11 @@ public class SedProcessingService {
 
     private static final String BAD_REQUEST = "400";
 
-    /** Aceeasi ordine ca in ApplicationBuilderPG, plus rezultatul rat, care lipsea. */
+    /** Aceleasi surse, in aceeasi ordine, ca in ApplicationBuilderPG din sed. */
     static final List<ProxySource> SOURCES = List.of(
             ProxySource.SCAL_PERSON, ProxySource.SCAL_PERSON_INITIAL, ProxySource.SCAL_ENTITY,
             ProxySource.DNB, ProxySource.CKI, ProxySource.RVDR, ProxySource.VIS,
-            ProxySource.EVA_COMPANY, ProxySource.EVA_PERSON, ProxySource.EVENT_INDICATOR,
-            ProxySource.RAT_COMPLIANCE);
+            ProxySource.EVA_COMPANY, ProxySource.EVA_PERSON, ProxySource.EVENT_INDICATOR);
 
     private final ApplicationAggregator applicationAggregator;
     private final ApplicationService applicationService;
@@ -44,7 +43,7 @@ public class SedProcessingService {
          * Codul de pana acum sarea agregarea pentru flow-urile cu prefixul Arval NL, iar legacy o facea
          * tocmai pentru ele (applicationBuilder.buildApplication). Aici agregarea ruleaza pentru toate flow-urile.
          * De intrebat:
-         *  1. Proxy-urile sursa (cki, vis, eva, rvdr, scal, dnb, event indicator, rat) ruleaza si pe flow-urile
+         *  1. Proxy-urile sursa (cki, vis, eva, rvdr, scal, dnb, event indicator) ruleaza si pe flow-urile
          *     Arval NL si isi salveaza rezultatele cu acelasi businessKey si flowId pe care le primeste sed?
          *  2. Daca nu, de unde vin risk assessment-urile pentru Arval: le pune arval-input-api direct in
          *     JSON-ul aplicatiei?
