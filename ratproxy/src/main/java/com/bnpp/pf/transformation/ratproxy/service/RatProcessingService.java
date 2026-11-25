@@ -69,7 +69,7 @@ public class RatProcessingService {
         }
 
         // FIX fata de codul actual: aplicatia se salveaza si cand rat.compliance e sarit (inainte nu se salva deloc).
-        // TODO: ApplicationService.saveApplicationRequest(ProxyContext) - vezi TODO-ul din SedProcessingService.
+        // saveApplicationRequest(ProxyContext): vezi snippets/common-api/ApplicationService-changes.java
         if (completed) {
             applicationService.saveApplicationRequest(ctx);
         }

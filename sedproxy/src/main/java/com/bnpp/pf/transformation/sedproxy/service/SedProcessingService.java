@@ -53,8 +53,7 @@ public class SedProcessingService {
          */
         boolean aggregated = applicationAggregator.enrich(ctx, SOURCES);
 
-        // TODO: ApplicationService are nevoie de saveApplicationRequest(ProxyContext): salveaza ctx.getApplication()
-        // serializata (cu rezultatele agregate, nu JSON-ul primit), cu ctx.getProducer() si ctx.getEventTime().
+        // Se salveaza aplicatia cu rezultatele agregate: snippets/common-api/ApplicationService-changes.java
         applicationService.saveApplicationRequest(ctx);
 
         if (!aggregated) {

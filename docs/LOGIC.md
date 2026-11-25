@@ -86,11 +86,23 @@ Diferențe față de legacy:
 
 ### Mapperele existente
 
-Mapperele din `applicationbuilder.utils` (SCAL, DNB, CKI, RVDR, VIS, EVA, EventIndicator) nu se rescriu. Fiecare se leagă de agregare printr-un `DtoBackedResultMapper`: rezultatul din listă e transformat în dto-ul pe care mapperul îl primește deja și mapperul e apelat neschimbat, o dată per rezultat. Fără rezultate, mapperul e apelat o dată cu `null`, ca până acum. Exemplu: `snippets/common-api/ProxyResultMapperConfig.java`.
+Mapperele din `applicationbuilder.utils` nu se rescriu. `snippets/common-api/ProxyResultMapperConfig.java` le leagă de agregare, câte un bean per sursă. Dto-urile tipizate se construiesc cu `ProxyDtoBuilder`-ul existent, deci tratarea răspunsului gol și câmpul `errors` rămân la fel.
 
-Consecință: comportamentul mapperelor rămâne cel din cloud, inclusiv ramurile de „fără date" (de exemplu risk assessment-urile goale din `BKRCKIMapper`). Rândul „Rezultat lipsă" din tabelul de mai sus se aplică doar mapperelor noi (`RatComplianceMapper`).
+| Sursă | Cum e apelat mapperul | Schimbare în mapper |
+|---|---|---|
+| SCAL ×3, DNB, RVDR, EventIndicator | o dată per rezultat; fără rezultate, o dată cu `null` | niciuna |
+| VIS | la fel, deocamdată | de confirmat după `checkErrors` |
+| CKI | o dată, cu lista | `mapCKIData` primește lista |
+| EVA person | o dată, cu lista | `mapEVAPersonData` primește lista |
+| EVA company | o dată, cu lista | niciuna, primea deja listă |
 
-Excepție: `BKRCKIMapper`. `createRiskAssessments` adaugă la fiecare apel două risk assessment-uri pe loan (Holder și CoHolder, goale dacă lipsesc), deci apelat per persoană ar produce 2N. De aceea `mapCKIData` primește lista întreagă (`snippets/common-api/BKRCKIMapper-mapCKIData.java`). De verificat același lucru la VIS și EVA, care pun și ele rezultate pe loan.
+CKI și EVA person primesc lista fiindcă adaugă la fiecare apel risk assessment-uri pe loan (Holder / CoHolder); apelate per persoană ar produce duplicate.
+
+Comportamentul mapperelor rămâne cel din cloud, inclusiv ramurile de „fără date". Rândul „Rezultat lipsă" din tabelul de mai sus se aplică doar mapperelor noi (`RatComplianceMapper`).
+
+### Salvarea aplicației
+
+`ApplicationService.saveApplicationRequest(ProxyContext)` păstrează logica existentă: dacă există deja un rând pentru business key, actualizează doar `modifiedDate` și `modifiedBy`. JSON-ul nu se rescrie. Consecință pentru GET-ul din rat: la o a doua procesare a aceluiași business key, sed primește rezultatele rat de la prima.
 
 ## 6. Rat
 

@@ -31,8 +31,7 @@ public class RatResultsService {
     private final Gson gson = GsonInstance.createGson();
 
     public ProxyResultsDto results(String businessKey, String flowId) {
-        // TODO: ApplicationService are nevoie de o citire a aplicatiei salvate de saveApplicationRequest
-        // (ultimul rand pentru businessKey si flowId, parsat inapoi in Application); numele metodei e presupus.
+        // findSavedApplication: vezi snippets/common-api/ApplicationService-changes.java
         Application application = applicationService.findSavedApplication(businessKey, flowId).orElse(null);
         return toResults(businessKey, flowId, application);
     }

@@ -4,18 +4,17 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | common-api (legacy și cloud) | configurarea `kafkaListenerContainerFactory` (probabil `ConsumersConfig` / `KafkaConfig`) | arată ce se întâmplă când publicarea eșuează și excepția iese din listener: retry, câte încercări, DLT |
-| 2 | common-api (cloud) | `ApplicationService`, toată clasa | pentru `saveApplicationRequest(ProxyContext)` și citirea aplicației salvate |
-| 3 | common-api (cloud) | `ApplicationRequestEntity` + `ApplicationRequestRepository` | GET-ul din rat citește aplicația salvată |
-| 4 | ratproxy | `ApplicantBuilder.createApplicant` | primește încă `collectError` și context |
-| 5 | ratproxy | `Applicant.validate` și `Company.validate` | aceeași schimbare ca la `Loan.validate` |
-| 6 | ratproxy | clientul CloverLeaf (`BNPParibasCloverLeafAPI` + implementarea), versiunea cloud | semnăturile se schimbă; nu e rescris |
-| 7 | ratproxy | `Loan.validate`, restul metodei (după companii) | poza se oprea acolo |
-| 8 | sedproxy | `SedProcessorService.areParametersProvided`, condiția completă | linia era tăiată |
-| 9 | sedproxy | `ExpertiseReturn` | de confirmat câmpul `errorMessage` din builder |
-| 10 | common-api (cloud) | `ProxyObsConstant`, toată clasa | constante presupuse: `ARVAL_NL_FLOW_ID_PREFIX`, `SCOPE_KEY`, `SED_DATA_SCOPE` |
+| 1 | common-api | `BKRVISMapper.checkErrors` și `createRiskAssessments(loan, ...)` | dacă adaugă pe loan la fiecare apel, VIS trebuie trecut pe listă, ca CKI |
+| 2 | common-api | `ApplicationRequestEntity` | de confirmat `getApplicationJson()` |
+| 3 | ratproxy | clientul CloverLeaf (`BNPParibasCloverLeafAPI` + implementarea), versiunea cloud | semnăturile se schimbă; nu e rescris |
+| 4 | ratproxy | `ApplicantBuilder.createApplicant`, `Applicant.validate`, `Company.validate` | primesc încă `collectError` și context |
+| 5 | sedproxy | `SedProcessorService.areParametersProvided`, condiția completă | linia era tăiată |
+| 6 | sedproxy | `ExpertiseReturn` | de confirmat câmpul `errorMessage` din builder |
+| 7 | common-api | `ProxyObsConstant`, toată clasa | constante presupuse: `ARVAL_NL_FLOW_ID_PREFIX`, `SCOPE_KEY`, `SED_DATA_SCOPE` |
+| 8 | common-api | configurarea `kafkaListenerContainerFactory` | ce se întâmplă când publicarea eșuează și excepția iese din listener |
+| 9 | common-api | `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper`: doar semnăturile `map...Data` | presupuse `(dto, application)` |
+| 10 | orice proxy sursă | entitatea și repository-ul rezultatului (ex. `CheckCkiEntity`) | pentru endpointul de listă |
 | 11 | bkrvisproxy / rvdrproxy | `CreditCheckService.checkCredit` sau echivalentul | de mutat pe `ProxyContext` |
-| 12 | orice proxy sursă | entitatea și repository-ul rezultatului (ex. `CheckCkiEntity`) | pentru endpointul de listă |
 
 ## Transcrieri de referință nefăcute încă
 
@@ -28,6 +27,8 @@ Comparația din `LOGIC.md` pentru aceste clase se bazează pe analiza din conver
 
 ## De confirmat cu echipa
 
+0. `ProxyDtoBuilder.buildCheckEvaPersonDto` citește răspunsul din `getResponsePersonJson()`, același câmp ca SCAL person. E intenționat?
+0. La reprocesarea aceluiași business key, JSON-ul aplicației salvate nu se rescrie. E acceptabil ca sed să primească rezultatele rat de la prima procesare?
 1. Arval NL: proxy-urile sursă rulează pe aceste flow-uri sau rezultatele vin în JSON-ul aplicației?
 2. Arval trebuie să primească și status KO?
 3. Ramura `isCollateralIsPrivateUse` din rat e intenționată?
