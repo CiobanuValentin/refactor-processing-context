@@ -14,10 +14,8 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation.Applica
 import com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation.ProxySource;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
-// TODO: in LoanMapping se vede com.bnp.pf.transformation.commons.api.message.input.Loan, deci pachetul
-// "model" folosit in tot acest repo pentru Application/Loan/Customer/Organisation e probabil "message.input".
-import com.bnp.pf.transformation.commons.api.model.Application;
-import com.bnp.pf.transformation.commons.api.model.Loan;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Loan;
 
 /**
  * Pasii rat dupa validare: agregare, verificarea loan-ului, sanction, compliance, score, salvare.

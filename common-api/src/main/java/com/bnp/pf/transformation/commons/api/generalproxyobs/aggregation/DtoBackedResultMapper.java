@@ -5,7 +5,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 /**
  * Leaga un mapper existent (BKRCKIMapper, DNBMapper, ...) de agregarea pe liste, fara sa-l rescrie.

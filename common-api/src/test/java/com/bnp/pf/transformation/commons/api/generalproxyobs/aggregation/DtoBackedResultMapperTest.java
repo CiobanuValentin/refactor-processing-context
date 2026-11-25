@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 class DtoBackedResultMapperTest {
 

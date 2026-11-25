@@ -12,7 +12,7 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation.ProxyRe
 import com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation.ProxyResultsDto;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.model.Customer;
 import com.bnp.pf.transformation.commons.api.model.Organisation;
 import com.bnp.pf.transformation.commons.api.model.RiskAssessment;

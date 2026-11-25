@@ -19,7 +19,7 @@ import com.bnp.pf.transformation.avro.OrchestrationMessage;
 import com.bnp.pf.transformation.avro.Signal;
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.error.ErrorHandler;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.utils.LocalDateTimeUtils;
 
 /**

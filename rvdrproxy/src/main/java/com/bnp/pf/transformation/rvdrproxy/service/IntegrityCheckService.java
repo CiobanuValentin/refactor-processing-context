@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 // sunt presupuse - pastreaza-le pe cele din fisierul actual.
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
-import com.bnp.pf.transformation.commons.api.model.Application;
-import com.bnp.pf.transformation.commons.api.model.Loan;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Loan;
 
 @Slf4j
 @Component

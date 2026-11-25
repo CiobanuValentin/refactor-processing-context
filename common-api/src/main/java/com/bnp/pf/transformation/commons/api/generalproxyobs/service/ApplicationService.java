@@ -25,7 +25,7 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ApplicationRequ
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.entity.ApplicationRequestEntity;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.repository.ApplicationRequestRepository;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.utils.LocalDateTimeUtils;
 
 @Slf4j

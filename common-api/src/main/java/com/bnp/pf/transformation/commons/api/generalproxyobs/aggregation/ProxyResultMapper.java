@@ -3,7 +3,7 @@ package com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation;
 import java.util.List;
 
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 /**
  * Pune rezultatele unei surse pe aplicatie. Mapperele existente (SCALMapper, BKRCKIMapper...) il implementeaza

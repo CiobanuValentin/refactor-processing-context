@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 /**
  * Validarea de inceput, comuna tuturor proxy-urilor. Fail-fast ca in legacy:

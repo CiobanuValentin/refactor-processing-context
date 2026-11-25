@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 // TODO: importurile pentru Application, Loan, Customer, Organisation si RiskAssessment sunt presupuse.
 import com.bnp.pf.transformation.commons.api.generalproxyobs.builder.gson.GsonInstance;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
-import com.bnp.pf.transformation.commons.api.model.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.model.Customer;
-import com.bnp.pf.transformation.commons.api.model.Loan;
+import com.bnp.pf.transformation.commons.api.message.input.Loan;
 import com.bnp.pf.transformation.commons.api.model.Organisation;
 import com.bnp.pf.transformation.commons.api.model.RiskAssessment;
 

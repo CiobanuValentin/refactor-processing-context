@@ -14,7 +14,7 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation.Applica
 import com.bnp.pf.transformation.commons.api.generalproxyobs.aggregation.ProxySource;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
-import com.bnp.pf.transformation.commons.api.model.Loan;
+import com.bnp.pf.transformation.commons.api.message.input.Loan;
 
 /**
  * Pasii sed dupa validare: agregare, salvare, verificarea loan-ului, apelul catre DES.
