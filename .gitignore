@@ -1,0 +1,10 @@
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+# Companion notes, deliberately untracked (see CLAUDE.md)
+CLAUDE.md
+CLAUDE_CODE_CONTEXT.md
