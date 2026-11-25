@@ -62,5 +62,4 @@ public class RATProxyListener {
         // In afara try-ului: daca publicarea insasi esueaza, exceptia iese catre containerul Kafka.
         proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
     }
-    }
 }

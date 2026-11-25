@@ -71,7 +71,6 @@ public class SedProxyListener {
         proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
         publishArvalStatus(ctx);
     }
-    }
 
     /**
      * Ca in codul actual, Arval primeste status doar cand procesarea a reusit.
