@@ -31,5 +31,4 @@ Comparația din `LOGIC.md` pentru aceste clase se bazează pe analiza din conver
 1. Arval NL: proxy-urile sursă rulează pe aceste flow-uri sau rezultatele vin în JSON-ul aplicației?
 2. Arval trebuie să primească și status KO?
 3. Ramura `isCollateralIsPrivateUse` din rat e intenționată?
-4. Camunda așteaptă `KO` sau `NOT_OK`?
-5. Pachetul modelului: `commons.api.message.input` (văzut în `LoanMapping`) în loc de `commons.api.model` (presupus în tot repo-ul)?
+4. Pachetul modelului: `commons.api.message.input` (văzut în `LoanMapping`) în loc de `commons.api.model` (presupus în tot repo-ul)?

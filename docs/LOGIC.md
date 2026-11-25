@@ -65,7 +65,7 @@ Diferențe față de legacy, toate decise:
 Diferențe față de legacy:
 
 - Timpul evenimentului vine mereu din metadata (fallback `now()`).
-- Cloud-ul are `KO` și `"STATUS"` în `ProxyObsConstant`; legacy folosea `NOT_OK`. De verificat ce așteaptă Camunda.
+- `KO` și `NOT_OK` au aceeași valoare ca string (`"ko"`), deci nu e nicio diferență pentru Camunda.
 
 ## 5. Agregarea (rat și sed)
 
@@ -82,6 +82,14 @@ Diferențe față de legacy:
 
 - Nu mai există Elasticsearch, deci un apel poate eșua. Cazul nu are echivalent în legacy; s-a ales KO, ca „n-am putut întreba" să nu arate ca „nu există rezultat".
 - Sursa lipsă din configurare (`No mapper registered`) este tot un caz nou. De mutat într-o verificare la pornire.
+
+### Mapperele existente
+
+Mapperele din `applicationbuilder.utils` (SCAL, DNB, CKI, RVDR, VIS, EVA, EventIndicator) nu se rescriu. Fiecare se leagă de agregare printr-un `DtoBackedResultMapper`: rezultatul din listă e transformat în dto-ul pe care mapperul îl primește deja și mapperul e apelat neschimbat, o dată per rezultat. Fără rezultate, mapperul e apelat o dată cu `null`, ca până acum. Exemplu: `snippets/common-api/ProxyResultMapperConfig.java`.
+
+Consecință: comportamentul mapperelor rămâne cel din cloud, inclusiv ramurile de „fără date" (de exemplu risk assessment-urile goale din `BKRCKIMapper`). Rândul „Rezultat lipsă" din tabelul de mai sus se aplică doar mapperelor noi (`RatComplianceMapper`).
+
+De verificat la fiecare mapper: ce adaugă pe loan la fiecare apel. `mapCKIData` face `loan.getRiskAssessments().addAll(...)` la fiecare apel, deci cu trei persoane rezultatele de pe loan pot apărea de trei ori.
 
 ## 6. Rat
 
