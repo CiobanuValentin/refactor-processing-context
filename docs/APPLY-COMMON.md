@@ -59,6 +59,13 @@ Clasele noi din `common-api/src` se copiază ca fișiere întregi. Singurul fiș
     }
 ```
 
+Până nu faci această înlocuire, `ProxyResultMapperConfig` nu compilează (`List<D> cannot be converted to CheckCkiPersonDto` la `ckiResultMapper`), pentru că `mapCKIData` din cloud primește un singur DTO.
+
+După înlocuire, celelalte apeluri ale lui `mapCKIData` (7 usages în IDE) nu mai compilează:
+
+- cele din clasele care se șterg oricum (`PartialDataFetcher`, `ApplicationBuilder` vechi) dispar odată cu ele;
+- în teste, `mapCKIData(dto, application)` devine `mapCKIData(List.of(dto), application)`, iar `mapCKIData(null, application)` rămâne valid, dar cere cast: `mapCKIData((List<CheckCkiPersonDto>) null, application)` nu e necesar dacă există o singură metodă cu acest nume.
+
 Nu e nevoie de importuri noi: `List`, `ArrayList` și `Objects` sunt deja folosite în clasă.
 
 ## 2. `BKRCKIMapper.collectAllResponses`: două linii
