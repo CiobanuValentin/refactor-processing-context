@@ -22,17 +22,18 @@ try {
         service.process(ctx);   // agregatoarele apelează aici applicationAggregator.enrich(ctx, SOURCES)
         applicationService.updateApplicationStatus(ctx.getBusinessKey(), ctx.hasErrors() ? KO : OK);
     }
-    proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
 } catch (RuntimeException e) {
-    throw new ProxyProcessingFailedException(ctx, e.getMessage(), e);
+    ctx.addUnexpectedError(e);
 }
+proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
 ```
 
 Reguli:
 
 - Erorile stau într-un singur loc: `ctx.addError(code, message)`.
 - Un pas eșuat oprește pașii următori. Răspunsul e KO cu error, fără excepție.
-- O excepție neașteptată iese ca `ProxyProcessingFailedException`, adică retry.
+- O excepție neașteptată din procesare devine tot KO cu error. Nu există retry.
+- Publicarea e în afara `try`-ului: dacă ea eșuează, excepția iese către containerul Kafka.
 - Semnalele de ieșire se construiesc la publicare, din context.
 
 ## 3. Validarea
@@ -89,7 +90,7 @@ Mapperele din `applicationbuilder.utils` (SCAL, DNB, CKI, RVDR, VIS, EVA, EventI
 
 Consecință: comportamentul mapperelor rămâne cel din cloud, inclusiv ramurile de „fără date" (de exemplu risk assessment-urile goale din `BKRCKIMapper`). Rândul „Rezultat lipsă" din tabelul de mai sus se aplică doar mapperelor noi (`RatComplianceMapper`).
 
-De verificat la fiecare mapper: ce adaugă pe loan la fiecare apel. `mapCKIData` face `loan.getRiskAssessments().addAll(...)` la fiecare apel, deci cu trei persoane rezultatele de pe loan pot apărea de trei ori.
+Excepție: `BKRCKIMapper`. `createRiskAssessments` adaugă la fiecare apel două risk assessment-uri pe loan (Holder și CoHolder, goale dacă lipsesc), deci apelat per persoană ar produce 2N. De aceea `mapCKIData` primește lista întreagă (`snippets/common-api/BKRCKIMapper-mapCKIData.java`). De verificat același lucru la VIS și EVA, care pun și ele rezultate pe loan.
 
 ## 6. Rat
 
@@ -135,11 +136,11 @@ Listenerul devine cel din secțiunea 2. Serviciul propriu primește `ProxyContex
 |---|---|---|---|
 | `try/catch` în listener | nu există | există | există |
 | Eroare de la API-ul extern | serviciul de mapare o întoarce ca `List<ErrorHandler>`; răspuns KO cu error | depinde de proxy | KO cu error |
-| Excepție neprinsă | iese din listener către containerul Kafka | `ProcessingFailedException` (vis, rat); sed publică doar error | `ProxyProcessingFailedException` |
+| Excepție neprinsă | iese din listener către containerul Kafka | `ProcessingFailedException` (vis, rat); sed publică doar error | status KO plus error |
 
 În listenerele legacy nu există niciun handler. Ce se întâmplă cu o excepție neprinsă depinde de `kafkaListenerContainerFactory` din common, care nu a fost văzut. Camunda nu primește niciun răspuns de la proxy în acest caz.
 
-Decis: `ProcessingFailedException` și varianta nouă se scot. Nedecis: ce face `catch`-ul în loc.
+Decis: `ProcessingFailedException` se scoate, iar `catch`-ul răspunde cu status KO plus error. Când excepția apare înainte de `updateApplicationStatus`, statusul aplicației din baza de date nu mai e actualizat.
 
 ## 10. Ce a fost verificat
 

@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.commons.api.exception.ProxyProcessingFailedException;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ProxyContextValidator;
@@ -63,11 +62,15 @@ public class SedProxyListener {
                 sedProcessingService.process(ctx);
                 applicationService.updateApplicationStatus(ctx.getBusinessKey(), ctx.hasErrors() ? KO : OK);
             }
-            proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
-            publishArvalStatus(ctx);
         } catch (RuntimeException e) {
-            throw new ProxyProcessingFailedException(ctx, e.getMessage(), e);
+            // Ca in legacy, nu exista retry: orice exceptie din procesare inseamna status KO plus error.
+            log.error("Unexpected error - correlation {}, flow id {}", correlation, ctx.getFlowId(), e);
+            ctx.addUnexpectedError(e);
         }
+        // In afara try-ului: daca publicarea insasi esueaza, exceptia iese catre containerul Kafka.
+        proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
+        publishArvalStatus(ctx);
+    }
     }
 
     /**

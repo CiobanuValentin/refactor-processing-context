@@ -12,8 +12,11 @@ public void consume(@Payload OrchestrationMessage orchestrationMessage,
             integrityCheckService.loanCheckProcess(ctx, orchestrationMessage);
             applicationService.updateApplicationStatus(ctx.getBusinessKey(), ctx.hasErrors() ? KO : OK);
         }
-        proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
     } catch (RuntimeException e) {
-        throw new ProxyProcessingFailedException(ctx, e.getMessage(), e);
+        // Ca in legacy, nu exista retry: orice exceptie din procesare inseamna status KO plus error.
+        log.error("Unexpected error - correlation {}, flow id {}", correlation, ctx.getFlowId(), e);
+        ctx.addUnexpectedError(e);
     }
+    // In afara try-ului: daca publicarea insasi esueaza, exceptia iese catre containerul Kafka.
+    proxyResultPublisher.publish(ctx, statusTopic, errorTopic, version);
 }

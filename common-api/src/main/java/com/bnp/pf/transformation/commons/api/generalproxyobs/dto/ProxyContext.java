@@ -116,6 +116,12 @@ public class ProxyContext {
         errorHandler.addError(code, message);
     }
 
+    /** O exceptie neasteptata din procesare devine o eroare obisnuita: raspunsul va fi KO cu error. */
+    public void addUnexpectedError(RuntimeException e) {
+        String detail = e.getMessage() == null || e.getMessage().isBlank() ? e.toString() : e.getMessage();
+        addError("500", "Unexpected error for business key " + getBusinessKey() + " and flow ID " + flowId + ": " + detail);
+    }
+
     public List<Error> getErrors() {
         List<Error> errors = errorHandler.getErrors();
         return errors == null ? List.of() : errors;

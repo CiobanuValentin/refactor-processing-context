@@ -4,7 +4,7 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | common-api (legacy și cloud) | configurarea `kafkaListenerContainerFactory` (probabil `ConsumersConfig` / `KafkaConfig`) | arată ce se întâmplă cu o excepție neprinsă: retry, câte încercări, DLT |
+| 1 | common-api (legacy și cloud) | configurarea `kafkaListenerContainerFactory` (probabil `ConsumersConfig` / `KafkaConfig`) | arată ce se întâmplă când publicarea eșuează și excepția iese din listener: retry, câte încercări, DLT |
 | 2 | common-api (cloud) | `ApplicationService`, toată clasa | pentru `saveApplicationRequest(ProxyContext)` și citirea aplicației salvate |
 | 3 | common-api (cloud) | `ApplicationRequestEntity` + `ApplicationRequestRepository` | GET-ul din rat citește aplicația salvată |
 | 4 | ratproxy | `ApplicantBuilder.createApplicant` | primește încă `collectError` și context |

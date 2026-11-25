@@ -9,14 +9,25 @@ public class ProxyResultMapperConfig {
 
     private final Gson gson = GsonInstance.createGson();
 
+    // CKI nu poate folosi DtoBackedResultMapper: mapCKIData adauga la fiecare apel doua risk assessment-uri pe loan
+    // (Holder si CoHolder, goale daca lipsesc), deci cu N persoane ar iesi 2N. Primeste lista intreaga:
+    // vezi BKRCKIMapper-mapCKIData.java.
     @Bean
     ProxyResultMapper ckiResultMapper(BKRCKIMapper mapper) {
-        return new DtoBackedResultMapper<>(ProxySource.CKI,
-                result -> CheckCkiPersonDto.builder()
+        return new ProxyResultMapper() {
+            @Override
+            public ProxySource source() {
+                return ProxySource.CKI;
+            }
+
+            @Override
+            public void apply(List<ProxyResultDto> results, Application application, ProxyContext ctx) {
+                mapper.mapCKIData(results.stream().map(result -> CheckCkiPersonDto.builder()
                         .request(gson.fromJson(result.getRequestJson(), SingleBkrRequest.class))
                         .response(gson.fromJson(result.getResponseJson(), SingleBkrResponse.class))
-                        .build(),
-                mapper::mapCKIData);
+                        .build()).toList(), application);
+            }
+        };
     }
 
     @Bean
