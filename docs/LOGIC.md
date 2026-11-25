@@ -116,9 +116,18 @@ Proxy-ul cki face același lucru în ambele: pentru fiecare client eligibil cons
 
 Regulile de eligibilitate (`isEligibleCustomers`, `isEligibleCustomersCoHolder`, `getCompanies`) și construcția cererii sunt identice.
 
-În maparea din legacy (`createRiskAssessments`, `createClassificationResult`) se regăsesc lucruri care apar și în `BKRCKIMapper` din cloud, deci nu sunt de reparat: `"Result"` este mereu `"false"`, `BkrStatus` / `OrgPartyType` / `NeedsManualCheck` sunt suprascrise la fiecare persoană, iar din credite se pune doar unul în `"Loans"`.
+Maparea din legacy (`MappingService`, liniile 173-661) se regăsește în `BKRCKIMapper` din cloud. Lucrurile de mai jos arată a greșeli, dar sunt identice în legacy, deci **nu se repară**:
 
-Diferență de structură: în legacy `createRiskAssessments(loan, ckiResponse)` pornește de la un singur `SingleBkrResponse`; în cloud `createRiskAssessments(BkrCkiResponse)` pornește de la o listă de `BkrCkiResult`. Legătura dintre ele (mapperul din common legacy) nu a fost văzută.
+- `"Result"` este mereu `"false"`;
+- `BkrStatus`, `OrgPartyType`, `NeedsManualCheck` sunt suprascrise la fiecare persoană;
+- din credite se pune doar unul în `"Loans"` (`findAny`);
+- un singur `BkrPerson` e creat în afara stream-ului și refolosit;
+- `getRiskLevelHolder` întoarce LOW dacă există un holder, nu după răspuns;
+- un credit cu codurile A și H plus altceva e și „medium", și „high";
+- `getFirstPayment().equals(...)` fără null-check;
+- numărătorile pe tip (`getNmbrOfActiveLoans`, `getLowRiskLoans`...) întorc suma unui singur credit (`findAny().getAmount()`), nu un număr.
+
+Diferență de structură, încă nelămurită: în legacy `createRiskAssessments(loan, ckiResponse)` pornește de la **un singur** `SingleBkrResponse` și face mereu Holder + CoHolder din același răspuns. În cloud, `createRiskAssessments(BkrCkiResponse)` pornește de la o listă de `BkrCkiResult` și alege unul pentru Holder și unul pentru CoHolder. Nu se vede în legacy cine apelează metoda și cu ce răspuns.
 
 ## 7. Rat
 

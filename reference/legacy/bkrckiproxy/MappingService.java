@@ -2,8 +2,9 @@
 // Liniile taiate in poza sunt marcate cu /* ...taiat */. Importurile nu erau vizibile.
 package com.bnp.pf.transformation.ckiproxy.service;
 
-// Clasa are peste 665 de linii; aici sunt liniile 36-385 din poze. Restul (mappingRespAndCkiResult, getBestMatch,
-// getTotalAmount, getNmbrOfActiveLoans..., createSingleBrokerRequest) nu a fost vazut.
+// Clasa intreaga (727 de linii). Blocurile repetitive pe tip de credit sunt rezumate in comentarii.
+// Nu se vede cine apeleaza createRiskAssessments(loan, ckiResponse) (2 usages) si isCkiExists (1 usage):
+// checkCki nu le apeleaza.
 
 @Service
 @Slf4j
@@ -287,7 +288,283 @@ public class MappingService {
                                 .filter(Objects::nonNull)
                                 .max(Comparator.comparing(BkrPersonScore::getCardRiskClass)).get()));
         Optional<BkrPersonScore> resultValue = scoreResult.findAny().flatMap(Stream::findAny);
-        /* ...restul nu era in poza */
+        return resultValue.map(BkrPersonScore::getCardRiskClass).orElse(null);
     }
-    /* ...liniile de dupa 385 nu au fost vazute */
+
+    private Integer getNumS15Open12m(BkrCkiResult bkrCkiResult) {
+        Optional<CreditLoan> numOpen = bkrCkiResult.getCreditLoans().stream()
+                .filter(creditLoan -> creditLoan.getAmount() >= 150000
+                        && creditLoan.getCreated() != null
+                        && creditLoan.getCreated().isAfter(LocalDateTime.now().plusMonths(-12))
+                        && creditLoan.getCreated().isBefore(LocalDateTime.now())).findAny();
+        return numOpen.isPresent() ? numOpen.get().getAmount() : 0;
+    }
+
+    private Integer getNumOpen12m(BkrCkiResult bkrCkiResult) {
+        Optional<CreditLoan> numOpen = bkrCkiResult.getCreditLoans().stream()
+                .filter(creditLoan -> creditLoan.getCreated() != null
+                        && creditLoan.getCreated().isAfter(LocalDateTime.now().plusMonths(-12))
+                        && creditLoan.getCreated().isBefore(LocalDateTime.now())).findAny();
+        return numOpen.isPresent() ? numOpen.get().getAmount() : 0;
+    }
+
+    // De observat: Mortgage nu este in lista.
+    private Double getTotalMonthlyInstallments(BkrCkiResult bkrCkiResult) {
+        BigDecimal[] instalments = {bkrCkiResult.getInstallmentActiveLoansTypeDebtSettlement(),
+                bkrCkiResult.getInstallmentActiveLoansTypeHouseDebtWithNhg(),
+                bkrCkiResult.getInstallmentActiveLoansTypeHouseDebtWithoutNhg(),
+                bkrCkiResult.getInstallmentActiveLoansTypeMailOrder(),
+                bkrCkiResult.getInstallmentActiveLoansTypeOperationalLease(),
+                bkrCkiResult.getInstallmentActiveLoansTypeOther(),
+                bkrCkiResult.getInstallmentActiveLoansTypePersonalLoan(),
+                bkrCkiResult.getInstallmentActiveLoansTypeRevolvingLoan(),
+                bkrCkiResult.getInstallmentActiveLoansTypeTelecomContract()};
+
+        return Arrays.stream(instalments).reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue();
+    }
+
+    private Integer activeOwnedContracts(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<Map.Entry<String, List<CreditLoan>>> amount = bkrCkiResult.getCreditLoans().stream().collect(groupingBy(CreditLoan::getAccountNumber)).entrySet().stream().findFirst();
+            if (amount.isPresent()) {
+                Optional<CreditLoan> loan = amount.get().getValue().stream()
+                        .filter(creditLoan -> creditLoan.getActive() && creditLoan.getIdOwnedContract() != null && creditLoan.getIdOwnedContract().equals("EC")).findAny();
+                return loan.isPresent() ? loan.get().getAmount() : 0;
+            }
+            return 0;
+        }
+        return 0;
+    }
+
+    private Integer getLowRiskLoans(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<CreditLoan> lowRisk = bkrCkiResult.getCreditLoans().stream().filter(CreditLoan::getLowRisk).findAny();
+            return lowRisk.isPresent() ? lowRisk.get().getAmount() : 0;
+        }
+        return 0;
+    }
+
+    private Integer getMediumRiskLoans(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult == null || bkrCkiResult.getCreditLoans().isEmpty()) {
+            return 0;
+        }
+        Optional<CreditLoan> mediumRisk = bkrCkiResult.getCreditLoans().stream().filter(CreditLoan::getMediumRisk).findAny();
+        return mediumRisk.isPresent() ? mediumRisk.get().getAmount() : 0;
+    }
+
+    private Integer getLoansHersteldCode(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<CreditLoan> hersteldCode = bkrCkiResult.getCreditLoans().stream()
+                    .filter(bkrCode -> bkrCode.getBkrCodes() != null && !bkrCode.getBkrCodes().isEmpty())
+                    .filter(bkrCodes -> bkrCodes.getBkrCodes().contains("H")).findAny();
+            return hersteldCode.isPresent() ? hersteldCode.get().getAmount() : 0;
+        }
+        return 0;
+    }
+
+    private Integer getHighRiskLoans(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult == null || bkrCkiResult.getCreditLoans().isEmpty()) {
+            return 0;
+        }
+        Optional<CreditLoan> highRisk = bkrCkiResult.getCreditLoans().stream().filter(CreditLoan::getHighRisk).findAny();
+        return highRisk.isPresent() ? highRisk.get().getAmount() : 0;
+    }
+
+    private Integer getNmbrOfActiveLoansSum(BkrCkiResult bkrCkiResult, String loanType) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            return bkrCkiResult.getCreditLoans().stream().filter(creditLoan -> creditLoan.getActive() && creditLoan.getTypeOfLoan().equals(loanType)).mapToInt(CreditLoan::getAmount).sum();
+        }
+        return 0;
+    }
+
+    private Integer getNmbrOfActiveLoans(BkrCkiResult bkrCkiResult, String loanType) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<CreditLoan> activeLoan = bkrCkiResult.getCreditLoans().stream().filter(creditLoan -> creditLoan.getActive() && creditLoan.getTypeOfLoan().equals(loanType)).findAny();
+            return activeLoan.isPresent() ? activeLoan.get().getAmount() : 0;
+        }
+        return 0;
+    }
+
+    private BigDecimal getNmbrOfActiveOwnerLoans(BkrCkiResult bkrCkiResult, String loanType) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<CreditLoan> activeOwnerLoan = bkrCkiResult.getCreditLoans().stream().filter(creditLoan -> creditLoan.getActive() && creditLoan.getTypeOfLoan().equals(loanType)).findAny();
+            return activeOwnerLoan.isPresent() ? activeOwnerLoan.get().getInstallment() : BigDecimal.valueOf(0);
+        }
+        return BigDecimal.valueOf(0);
+    }
+
+    private Integer getNumberOfLoans(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<CreditLoan> loans = bkrCkiResult.getCreditLoans().stream()
+                    .filter(bkrCode -> bkrCode.getBkrCodes() != null && !bkrCode.getBkrCodes().isEmpty())
+                    .filter(bkrCode -> bkrCode.getBkrCodes().contains("A"))
+                    .filter(bkrCode -> !bkrCode.getBkrCodes().contains("H")).findAny();
+            return loans.map(creditLoan -> creditLoan.getBkrCodes().size()).orElse(0);
+        }
+        return 0;
+    }
+
+    private Integer getTotalAmount(BkrCkiResult bkrCkiResult) {
+        if (bkrCkiResult != null && !bkrCkiResult.getCreditLoans().isEmpty()) {
+            Optional<CreditLoan> amount = bkrCkiResult.getCreditLoans().stream().filter(CreditLoan::getActive)
+                    .filter(loans -> loans.getAmount() > 0).findAny();
+            return amount.isPresent() ? amount.get().getAmount() : 0;
+        }
+        return 0;
+    }
+
+    private BkrCkiResult mappingRespAndCkiResult(Loan loan, SingleBkrResponse ckiResponse) {
+        if (ckiResponse != null && ckiResponse.getResult() != null && ckiResponse.getResult().getPersons() != null) {
+            var bkrCkiResult = new BkrCkiResult();
+            var bkrPerson = new BkrPerson();
+            bkrCkiResult.setPersons(Optional.ofNullable(ckiResponse.getResult())
+                    .map(SingleBkrResponseResult::getPersons)
+                    .map(SingleBkrPersons::getPerson).orElseGet(Collections::emptyList)
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(person -> {
+                        var bkrPersonResult = new BkrPersonResult();
+                        bkrPersonResult.setBusinessKey(loan.getBusinessKey());
+                        bkrPerson.setMatchingPercentage(person.getMatchingScore());
+                        bkrPerson.setMatchingOutcome(person.getMatchingOutcome());
+                        bkrPersonResult.setOverallMatchingOutcome(ckiResponse.getResult().getOverallMatchingOutcome());
+                        getBkrScores(bkrPerson, person);
+                        getCreditLoans(bkrCkiResult, person);
+                        bkrPersonResult.setMatchedPersons(Collections.singletonList(bkrPerson));
+                        return bkrPersonResult;
+                    }).collect(Collectors.toList()));
+            return bkrCkiResult;
+        }
+        return null;
+    }
+
+    private void getBkrScores(BkrPerson bkrPerson, SingleBkrPerson person) {
+        bkrPerson.setBkrScores(Optional.ofNullable(person.getBkrScores()).map(BkrScoresType::getBkrScore).orElseGet(Collections::emptyList)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(bkrScore -> {
+                    var score = new BkrPersonScore();
+                    score.setCardName(bkrScore.getCardName());
+                    if (!bkrScore.getNotification().isEmpty()) {
+                        score.setNotification(bkrScore.getNotification());
+                    }
+                    score.setCardRiskClass(bkrScore.getResult().getCardRiskClass());
+                    score.setCardRiskPercentage(bkrScore.getResult().getCardRiskPercentage());
+                    score.setCardScoreValue((int) bkrScore.getResult().getCardScoreValue());
+                    score.setScoreData(bkrScore.getScoreData().stream().collect(Collectors.toMap(ScoreDataType::getScoreDataVariable, ScoreDataType::getScoreDataValue)));
+                    return score;
+                }).collect(Collectors.toList()));
+    }
+
+    private void getCreditLoans(BkrCkiResult bkrCkiResult, SingleBkrPerson person) {
+        bkrCkiResult.setCreditLoans(Optional.ofNullable(person.getCreditLoans()).map(CreditLoansType::getCreditLoan).orElseGet(Collections::emptyList)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(creditLoan -> {
+                    var eachLoan = new CreditLoan();
+                    eachLoan.setAccountNumber(creditLoan.getAccountNumber());
+                    eachLoan.setActive(!creditLoan.isDba() && creditLoan.getLastPayment() == null);
+                    eachLoan.setTypeOfLoan(creditLoan.getTypeOfLoan());
+                    eachLoan.setAmount(creditLoan.getLoanAmount() * 100);
+                    eachLoan.setDba(creditLoan.isDba());
+                    eachLoan.setFirstPayment(getDate(creditLoan.getFirstPayment()));
+                    eachLoan.setLastPayment(getDate(creditLoan.getLastPayment()));
+                    eachLoan.setPlannedLastPayment(getDate(creditLoan.getHypLastPayment()));
+                    eachLoan.setCreated(getDate(creditLoan.getRegistration()));
+                    eachLoan.setIdOwnedContract(creditLoan.getOwnedContract());
+                    eachLoan.setIndex(creditLoan.getIndex());
+                    if (creditLoan.getDetailCodes() != null && creditLoan.getDetailCodes().getDetailCode() != null) {
+                        eachLoan.setBkrCodes(creditLoan.getDetailCodes().getDetailCode().stream().filter(Objects::nonNull).map(DetailCodeType::getCode).collect(toList()));
+                    }
+                    eachLoan.setInstallment(getInstallment(eachLoan));
+                    eachLoan.setDuration(getDuration(eachLoan));
+                    eachLoan.setLowRisk(lowRisk(eachLoan));
+                    eachLoan.setMediumRisk(mediumRisk(eachLoan));
+                    eachLoan.setHighRisk(highRisk(eachLoan));
+                    eachLoan.setBkrCodesString(getBkrToString(eachLoan));
+
+                    return eachLoan;
+                }).collect(Collectors.toList()));
+    }
+
+    private String getBkrToString(CreditLoan eachLoan) {
+        return (eachLoan.getBkrCodes() != null && !eachLoan.getBkrCodes().isEmpty()) ? eachLoan.getBkrCodes().stream()
+                .filter(Objects::nonNull)
+                .filter(codes -> !codes.isEmpty())
+                .collect(Collectors.joining(",")) : null;
+    }
+
+    private LocalDateTime getDate(DateType firstPayment) {
+        if (firstPayment != null) {
+            return LocalDateTime.of(firstPayment.getYear(), firstPayment.getMonth(), firstPayment.getDay(), 0, 0);
+        }
+        return null;
+    }
+
+    private Boolean lowRisk(CreditLoan eachLoan) {
+        boolean lowRisk = Arrays.asList("AK", "DK", "VK", "TC", "OA", "RK").contains(eachLoan.getTypeOfLoan());
+        return lowRisk && (eachLoan.getBkrCodes() == null || eachLoan.getBkrCodes().isEmpty());
+    }
+
+    private Boolean mediumRisk(CreditLoan eachLoan) {
+        boolean mediumRisk = Arrays.asList("AK", "DK", "VK", "TC", "OA", "RK").contains(eachLoan.getTypeOfLoan());
+        return mediumRisk && eachLoan.getBkrCodes() != null && eachLoan.getBkrCodes().size() >= 2 && eachLoan.getBkrCodes().contains("A") && eachLoan.getBkrCodes().contains("H");
+    }
+
+    private Boolean highRisk(CreditLoan eachLoan) {
+        boolean highRisk = Arrays.asList("RO", "SR", "HY").contains(eachLoan.getTypeOfLoan());
+        return highRisk || (eachLoan.getBkrCodes() != null && !eachLoan.getBkrCodes().isEmpty() && !eachLoan.getMediumRisk());
+    }
+
+    private Integer getDuration(CreditLoan eachLoan) {
+        if (FALSE.equals(eachLoan.getActive())) {
+            return 0;
+        }
+        if (eachLoan.getFirstPayment().equals(eachLoan.getPlannedLastPayment())) {
+            return 1;
+        } else if (eachLoan.getPlannedLastPayment() == null) {
+            return null;
+        } else {
+            var first = eachLoan.getFirstPayment() != null ? eachLoan.getFirstPayment() : LocalDateTime.now();
+            var planned = eachLoan.getPlannedLastPayment() != null ? eachLoan.getPlannedLastPayment() : LocalDateTime.now();
+
+            return Math.toIntExact(ChronoUnit.MONTHS.between(first, planned)) + 1;
+        }
+    }
+
+    public BigDecimal getInstallment(CreditLoan eachLoan) {
+        if (FALSE.equals(eachLoan.getActive())) {
+            return BigDecimal.valueOf(0);
+        }
+        BigDecimal installment;
+        if (eachLoan.getFirstPayment().equals(eachLoan.getPlannedLastPayment())) {
+            installment = BigDecimal.valueOf(Math.ceil(eachLoan.getAmount() * 0.02));
+        } else if (eachLoan.getPlannedLastPayment() == null) {
+            installment = BigDecimal.valueOf(Math.max(Math.ceil(eachLoan.getAmount() * 0.02), 2500));
+        } else {
+            var first = eachLoan.getFirstPayment() != null ? eachLoan.getFirstPayment() : LocalDateTime.now();
+            var planned = eachLoan.getPlannedLastPayment() != null ? eachLoan.getPlannedLastPayment() : LocalDateTime.now();
+            var months = ChronoUnit.MONTHS.between(first, planned) + 1;
+            installment = BigDecimal.valueOf((double) eachLoan.getAmount() / months);
+        }
+        if (eachLoan.getBallon() != null) {
+            installment = installment.max(eachLoan.getBallon().getInstallment());
+        }
+
+        return installment.signum() > 0 ? installment.setScale(0, RoundingMode.CEILING) : BigDecimal.valueOf(0);
+    }
+
+    private RiskLevel getRiskLevelHolder(Loan loan) {
+        Optional<Customer> holder = loan.getCustomers().stream().filter(customer -> HOLDER.getApplicant().equals(customer.getApplicantType()) || HOLDER_PARTNER.getApplicant().equals(customer/* ...taiat */)).findAny();
+        return holder.isPresent() ? LOW : MEDIUM;
+    }
+
+    private RiskLevel getRiskLevelCoHolder(Loan loan) {
+        Optional<Customer> coHolder = loan.getCustomers().stream().filter(customer -> CO_HOLDER.getApplicant().equals(customer.getApplicantType()) || CO_HOLDER_PARTNER.getApplicant().equals(cu/* ...taiat */)).findAny();
+        return coHolder.isPresent() ? LOW : MEDIUM;
+    }
+
+    // createSingleBrokerRequest, createCallRequestData, createCallPerson, getDateType, getAddressType, getZipCode,
+    // getHouseNumberType (liniile 663-725): identice cu cele din cloud; singura diferenta e
+    // trim().length() > 0 in loc de !trim().isEmpty() la initiale.
 }
