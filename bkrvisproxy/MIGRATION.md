@@ -47,8 +47,15 @@ public DefaultErrorHandler errorHandler() {
 - Cloud cere și data nașterii ca să apeleze VIS; legacy nu o verifica.
 - Cloud salvează aplicația în `APPLICATION_REQUEST` înainte de verificare.
 
+## Endpointul pentru rat și sed
+
+Vis e deja pe listă: `GET /getVisEntities?businessKey=&flowId=` întoarce `List<GeneralProxyObsDto>`. Nu mai e nimic de adăugat aici.
+
+- Endpointul vechi, `/getVisEntity` (un singur obiect), nu mai există pe acest branch. Rat și sed de pe common-ul vechi îl cer încă (`bkrvis.credit-endpoint: "/getVisEntity"`) și citesc un singur obiect, deci nu merg cu acest vis.
+- Când rat și sed trec pe common-ul nou, în `application.yml`-ul lor: `bkrvis.credit-endpoint: "/getVisEntities"`.
+- Până atunci, fie vis se livrează împreună cu rat și sed, fie se păstrează temporar și endpointul vechi.
+
 ## De verificat
 
-1. `BkrVisController`: `fetchVisEntity` întoarce deja o listă, dar `PartialDataFetcherPG` citește un singur obiect. De văzut ce întoarce endpointul `/getVisEntity`.
-2. Importurile marcate `TODO`.
-3. Testele existente (`ProxyListenerTest`) folosesc `ProcessingContext` și trebuie rescrise.
+1. Importurile marcate `TODO`.
+2. Testele existente (`ProxyListenerTest`) folosesc `ProcessingContext` și trebuie rescrise.

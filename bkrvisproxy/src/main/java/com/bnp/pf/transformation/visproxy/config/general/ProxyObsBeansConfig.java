@@ -14,9 +14,8 @@ import com.bnp.pf.transformation.commons.api.kafka.ProducerService;
 
 /**
  * Bean-urile noi din common-api. Inlocuieste CollectErrorConfig si GeneralNullOrEmptyCheckServiceConfig, care se sterg.
- * ApplicationServiceConfig, CachingServiceConfig si GsonConfig raman.
- * TODO: daca ApplicationServiceConfig construieste ApplicationService cu "new", constructorul e acelasi
- * (ModelMapper, ApplicationRequestRepository).
+ * ApplicationServiceConfig ramane neschimbat (acelasi constructor: ModelMapper, ApplicationRequestRepository),
+ * la fel CachingServiceConfig si GsonConfig.
  */
 @Configuration
 public class ProxyObsBeansConfig {
