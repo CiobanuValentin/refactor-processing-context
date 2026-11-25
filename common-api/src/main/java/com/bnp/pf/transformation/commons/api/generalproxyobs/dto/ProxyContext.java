@@ -10,12 +10,13 @@ import java.util.function.Supplier;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-// TODO: importurile pentru clasele Avro, ErrorHandler si Error sunt presupuse - corecteaza-le din IDE.
-import com.bnp.pf.transformation.avro.ArvalOrchestrationMessage;
-import com.bnp.pf.transformation.avro.ArvalSignal;
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.avro.Signal;
+// TODO: importurile pentru clasele Avro Arval, ErrorHandler si Error sunt presupuse - corecteaza-le din IDE.
+import com.bnp.pf.transformation.orchestrator.avro.ArvalOrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.ArvalSignal;
+import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.Signal;
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.error.ErrorHandler;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
@@ -25,6 +26,7 @@ import com.bnp.pf.transformation.commons.api.utils.LocalDateTimeUtils;
  * Tot ce are nevoie un proxy pentru un mesaj: inputul (citit o singura data, imutabil),
  * aplicatia, erorile si proprietatile care pleaca in status. Semnalele de iesire se construiesc la publicare.
  */
+@Slf4j
 @Getter
 public class ProxyContext {
 
@@ -77,14 +79,18 @@ public class ProxyContext {
                 : new ProxyContext(proxyName, correlation, true, signal.getFlowId(), signal.getProperties(), eventTime, producer);
     }
 
-    /** Un timestamp lipsa sau in alt format nu trebuie sa opreasca procesarea: se foloseste ora curenta. */
+    /** Un timestamp lipsa sau in alt format nu trebuie sa opreasca procesarea: se foloseste ora curenta, cu un warning. */
     private static LocalDateTime eventTime(Supplier<LocalDateTime> fromMetadata) {
         try {
             LocalDateTime eventTime = fromMetadata.get();
-            return eventTime == null ? LocalDateTime.now() : eventTime;
+            if (eventTime != null) {
+                return eventTime;
+            }
+            log.warn("Event time missing in message metadata, using the current time");
         } catch (RuntimeException e) {
-            return LocalDateTime.now();
+            log.warn("Event time in message metadata could not be read, using the current time: {}", e.getMessage());
         }
+        return LocalDateTime.now();
     }
 
     /** Business key-ul vine din aplicatia parsata; null pana cand aplicatia e rezolvata. */

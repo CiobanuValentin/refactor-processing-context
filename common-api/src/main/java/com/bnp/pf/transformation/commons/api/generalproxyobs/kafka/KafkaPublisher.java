@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 // TODO: importurile pentru clasele Avro si ProducerService sunt presupuse - corecteaza-le din IDE.
-import com.bnp.pf.transformation.avro.ArvalOrchestrationMessage;
-import com.bnp.pf.transformation.avro.ArvalSignal;
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.avro.Signal;
+import com.bnp.pf.transformation.orchestrator.avro.ArvalOrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.ArvalSignal;
+import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.Signal;
 import com.bnp.pf.transformation.commons.api.kafka.ProducerService;
 import com.bnp.pf.transformation.commons.api.utils.OrchestrationMetaDataHandler;
 

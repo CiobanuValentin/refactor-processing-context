@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ProxyContextValidator;

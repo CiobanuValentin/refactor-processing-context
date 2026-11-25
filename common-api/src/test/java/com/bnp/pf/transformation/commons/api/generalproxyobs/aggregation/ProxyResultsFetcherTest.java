@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.avro.Signal;
+import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.Signal;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 
 class ProxyResultsFetcherTest {

@@ -13,10 +13,10 @@ import java.util.Map;
 import org.apache.avro.util.Utf8;
 import org.junit.jupiter.api.Test;
 
-import com.bnp.pf.transformation.avro.ArvalOrchestrationMessage;
-import com.bnp.pf.transformation.avro.ArvalSignal;
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.avro.Signal;
+import com.bnp.pf.transformation.orchestrator.avro.ArvalOrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.ArvalSignal;
+import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.Signal;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 
 class ProxyContextValidatorTest {

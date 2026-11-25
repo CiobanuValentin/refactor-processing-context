@@ -19,9 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.modelmapper.ModelMapper;
 
-import com.bnp.pf.transformation.avro.Metadata;
-import com.bnp.pf.transformation.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.avro.Signal;
+import com.bnp.pf.transformation.orchestrator.avro.Metadata;
+import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
+import com.bnp.pf.transformation.orchestrator.avro.Signal;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.entity.ApplicationRequestEntity;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.repo.ApplicationRequestRepository;

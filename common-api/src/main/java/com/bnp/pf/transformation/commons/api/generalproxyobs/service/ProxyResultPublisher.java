@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import com.bnp.pf.transformation.avro.ArvalSignal;
-import com.bnp.pf.transformation.avro.Signal;
+import com.bnp.pf.transformation.orchestrator.avro.ArvalSignal;
+import com.bnp.pf.transformation.orchestrator.avro.Signal;
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.kafka.KafkaPublisher;
