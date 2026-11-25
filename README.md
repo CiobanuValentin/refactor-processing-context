@@ -27,3 +27,7 @@ Clasele din common folosesc pachetul `com.bnp...`. Sed și rat folosesc `com.bnp
 - Logica de mapare (mapperele din common, `ProxyDtoBuilder`, serviciile de mapare din proxy-uri) nu se modifică fără o comparație cu legacy, discutată pe poze.
 - Fiecare rând de poze primit se transcrie în `reference/`, ca să rămână codul și aici.
 - Clasele vechi se șterg direct, fără `@Deprecated`.
+
+## De unde continui
+
+Starea curentă, ce e blocat și ce trebuie confirmat: [docs/HANDOFF.md](docs/HANDOFF.md).
