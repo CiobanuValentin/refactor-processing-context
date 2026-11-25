@@ -4,8 +4,8 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | legacy common-api-1.23.jar | metodele `map...Data` din `BKRVISMapper`, `BKREVAMapper`, `SCALMapper`, `DNBMapper`, `RVDRMapper`, `EventIndicatorMapper` | variantele pe listă, de readus ca la CKI |
-| 2 | legacy common-api-1.23.jar | `BKRCKIMapper` după linia 222 (`createRiskAssessments`, `createRiskAssessment`) | de confirmat că restul e identic cu cloud-ul |
+| 1 | diff legacy / cloud | `SCALMapper`, `DNBMapper`, `RVDRMapper`, `EventIndicatorMapper`: metodele `map...Data` | unde se adaugă rezultatele față de buclă |
+| 2 | diff legacy / cloud | `BKRCKIMapper`: `createRiskAssessments`, `getCreditLoans(BkrPerson)` cu baloanele, `getInstallment`, `getDuration` | restul celor 51 de diferențe, doar unde nu e simplă reformatare |
 | 3 | legacy proxyobs ratproxy | `RatMappingService.processRatSanctionDataAsync`, `getScoreResultAsync` | de confirmat că compliance nu era apelat nicăieri |
 | 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
 | 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) și ce întoarce când nu sunt date |

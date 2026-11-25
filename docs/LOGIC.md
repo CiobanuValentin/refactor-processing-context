@@ -90,13 +90,23 @@ Mapperele din `applicationbuilder.utils` și `ProxyDtoBuilder` **nu se modifică
 
 `snippets/common-api/ProxyResultMapperConfig.java` face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Singura diferență: sursa poate întoarce mai multe rânduri, iar mapperul e apelat pentru fiecare.
 
-Stare pe surse:
+Stare pe surse, după comparația cu diff din IDE (legacy față de cloud):
 
-| Sursă | Legătura | Stare |
-|---|---|---|
-| CKI | listă, `mapCKIData` din legacy | confirmat cu jarul legacy |
-| EVA company | listă | neschimbat în cloud |
-| SCAL ×3, DNB, RVDR, VIS, EVA person, EventIndicator | un apel per rând | provizoriu, până se văd mapperele din jarul legacy |
+| Sursă | Legacy | Legătura nouă | Stare |
+|---|---|---|---|
+| CKI | listă; pe loan se adaugă o dată, după buclă | listă, `mapCKIData` readus din legacy | confirmat |
+| VIS | listă; pe loan se adaugă în buclă, la fiecare rând | un apel per rând, mapper neschimbat | confirmat echivalent |
+| EVA person | listă; pe loan se adaugă în buclă | un apel per rând, mapper neschimbat | confirmat echivalent |
+| EVA company | listă; pe loan se adaugă în buclă | listă, mapper neschimbat | confirmat identic |
+| SCAL ×3, DNB, RVDR, EventIndicator | necomparat | un apel per rând | de comparat |
+
+La VIS și EVA, mai multe rânduri fără erori înseamnă mai multe perechi Holder / CoHolder pe loan. Așa era și în legacy, deci nu se schimbă.
+
+Diferențe găsite în `BKRCKIMapper` (51 în diff, văzute doar o parte):
+
+- `mapCKIData`: listă în legacy, un singur dto în cloud. Se readuce.
+- `collectAllResponses`: în cloud, ramura a doua are argumentele inversate și pierde creditele și scorurile persoanei cu aliasuri. Corecția: `snippets/common-api/BKRCKIMapper-collectAllResponses.java`.
+- `getManualCheck`, `getLoanResult`, `createClassificationResult`: doar rescrise (metode extrase, `defaultInt`), același rezultat.
 
 ### Salvarea aplicației
 

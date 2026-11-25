@@ -1,12 +1,13 @@
 // De pus in common-api. Inlocuieste corpul lui ApplicationBuilderPG.buildApplication: pentru fiecare sursa,
 // ProxyDtoBuilder construieste dto-urile tipizate si mapperul le pune pe aplicatie.
 //
-// In legacy (common-api-1.23.jar) fetcher-ul intorcea List<...> pentru fiecare sursa si mapperele primeau lista.
-// In cloud mapperele au fost schimbate sa primeasca un singur dto.
-//  - CKI: mapCKIData e readus la varianta din legacy (BKRCKIMapper-mapCKIData.java) si primeste lista.
-//  - EVA company: primeste lista si in cloud.
-//  - Restul: deocamdata un apel per rand (DtoBackedResultMapper). De inlocuit cu varianta pe lista din legacy
-//    pe masura ce se vad mapperele din jar; pana atunci VIS si EVA person pot dubla rezultatele de pe loan.
+// In legacy (common-api-1.23.jar) fetcher-ul intorcea List<...> si mapperele primeau lista. Comparat cu diff din IDE:
+//  - CKI: legacy adauga rezultatele de pe loan O SINGURA DATA, dupa bucla. mapCKIData se readuce la varianta
+//    din legacy (BKRCKIMapper-mapCKIData.java) si primeste lista.
+//  - VIS si EVA person: legacy adauga pe loan IN bucla, la fiecare rand. Un apel al mapperului din cloud pentru
+//    fiecare rand (DtoBackedResultMapper) face exact acelasi lucru, deci mapperele raman neschimbate.
+//  - EVA company: primeste lista si in cloud; logica e identica.
+//  - SCAL x3, DNB, RVDR, EventIndicator: un apel per rand, necomparate inca cu legacy.
 
 @Configuration
 @RequiredArgsConstructor

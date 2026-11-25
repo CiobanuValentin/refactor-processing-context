@@ -2,7 +2,7 @@
 // de transcriere. IDE-ul afisa "Library source does not match the bytecode". Importurile nu erau vizibile.
 package com.bnp.pf.transformation.commons.api.applicationbuilder.utils;
 
-// Liniile 52-222 din poze. Restul clasei nu a fost vazut.
+// Liniile 52-236 si fragmente din 507-576.
 @Component
 @Slf4j
 public class BKRCKIMapper {
@@ -169,6 +169,7 @@ public class BKRCKIMapper {
                 if (Objects.isNull(aliasesPerson)) {
                     listPersons.put(singlePerson.getPersonID(), singlePerson);
                 } else if (aliasesPerson.getAliases() != null) {
+                    // persoana deja din mapa are aliasuri: datele ei se adauga la cea noua, iar cea noua o inlocuieste
                     if (aliasesPerson.getCreditLoans() != null && !aliasesPerson.getCreditLoans().getCreditLoan().isEmpty()) {
                         singlePerson.getCreditLoans().getCreditLoan().addAll(aliasesPerson.getCreditLoans().getCreditLoan());
                     }
@@ -176,11 +177,30 @@ public class BKRCKIMapper {
                         singlePerson.getBkrScores().getBkrScore().addAll(aliasesPerson.getBkrScores().getBkrScore());
                     }
                     listPersons.put(singlePerson.getPersonID(), singlePerson);
-                    /* ...restul nu era in poza */
+                } else if (singlePerson.getAliases() != null) {
+                    // persoana noua are aliasuri: datele ei se adauga la cea din mapa, care ramane
+                    if (singlePerson.getCreditLoans() != null && !singlePerson.getCreditLoans().getCreditLoan().isEmpty()) {
+                        aliasesPerson.getCreditLoans().getCreditLoan().addAll(singlePerson.getCreditLoans().getCreditLoan());
+                    }
+                    if (singlePerson.getBkrScores() != null && !singlePerson.getBkrScores().getBkrScore().isEmpty()) {
+                        aliasesPerson.getBkrScores().getBkrScore().addAll(singlePerson.getBkrScores().getBkrScore());
+                    }
+                    listPersons.put(aliasesPerson.getPersonID(), aliasesPerson);
                 }
             }
         }
-        /* ... */
+        return listPersons;
     }
-    /* ...restul clasei (dupa linia 222) nu a fost vazut */
+
+    // createClassificationResult (liniile 507-541), partea vazuta in diff:
+    //   - pentru fiecare persoana: BkrStatus, OrgPartyType, NeedsManualCheck, apoi "var i = 0" si bucla pe scoruri
+    //     (CardName+i, CardRiskClass+i, CardRiskPercentage+i, CardScoreValue+i, Notifications+i, ScoreData+i+"_"+cheie);
+    //     i porneste de la 0 la fiecare persoana - la fel ca in cloud (proceedWithClassResult / mapBkrPersonScore);
+    //   - fara persoane: doar NeedsManualCheck din bkrCkiResult;
+    //   - daca isCustomer: "Loans" = getLoanResult(...) cand lista nu e goala;
+    //   - "Result" = STR_FALSE.
+    //
+    // getLoanResult: intoarce null cand getCreditLoans() e null (cloud: lista goala - acelasi efect la apelant);
+    // amount, duration si index devin 0 cand sunt null (cloud: defaultInt - la fel).
+    /* ...restul clasei: diff-ul arata 51 de diferente in total; cele nevazute nu sunt transcrise */
 }
