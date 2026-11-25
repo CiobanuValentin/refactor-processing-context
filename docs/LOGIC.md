@@ -77,7 +77,7 @@ Diferențe față de legacy:
 | Rezultat lipsă | câmpul e sărit, fără eroare | risk assessment fabricat sau `"false"` | fără eroare, fără rezultat fabricat |
 | Apel eșuat | nu există cazul | eroare în context și excepție | eroare în context, răspuns KO |
 | `rat.compliance` în sed | din Elasticsearch | nu ajunge deloc | deschis; propunerea e parcată în `pending/` |
-| Ordinea surselor | - | scal ×3, dnb, cki, rvdr, vis, eva ×2, event indicator | aceeași |
+| Ordinea surselor | scal ×3, dnb, rvdr, vis, eva person, eva company, cki, event indicator | scal ×3, dnb, cki, rvdr, vis, eva company, eva person, event indicator | cea din legacy |
 
 Diferențe față de legacy:
 

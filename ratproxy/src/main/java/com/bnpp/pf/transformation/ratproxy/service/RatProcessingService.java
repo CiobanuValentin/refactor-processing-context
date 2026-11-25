@@ -29,11 +29,11 @@ public class RatProcessingService {
 
     private static final String BAD_REQUEST = "400";
 
-    /** Aceleasi surse, in aceeasi ordine, ca in ApplicationBuilderPG din rat. */
+    /** Aceleasi surse ca in cloud, in ordinea din legacy (ApplicationBuilder, common-api-1.23.jar). */
     static final List<ProxySource> SOURCES = List.of(
             ProxySource.SCAL_PERSON, ProxySource.SCAL_PERSON_INITIAL, ProxySource.SCAL_ENTITY,
-            ProxySource.DNB, ProxySource.CKI, ProxySource.RVDR, ProxySource.VIS,
-            ProxySource.EVA_COMPANY, ProxySource.EVA_PERSON, ProxySource.EVENT_INDICATOR);
+            ProxySource.DNB, ProxySource.RVDR, ProxySource.VIS,
+            ProxySource.EVA_PERSON, ProxySource.EVA_COMPANY, ProxySource.CKI, ProxySource.EVENT_INDICATOR);
 
     private final ApplicationAggregator applicationAggregator;
     private final RatMappingService ratMappingService;
@@ -62,6 +62,9 @@ public class RatProcessingService {
 
         // Un pas esuat opreste pasii urmatori; eroarea e deja in context si raspunsul va fi KO (ca in legacy).
         boolean completed = ratMappingService.processSanction(ctx);
+        // TODO: de confirmat cu echipa. In legacy (RATProxyListener) pasii erau doar sanction si score:
+        // processRatComplianceDataAsync nu era apelat, iar skipCommand nu exista. Compliance si conditia de skip
+        // au aparut in cloud; sunt pastrate aici pana se confirma ca au fost adaugate intentionat.
         if (completed && !isComplianceSkipped(application)) {
             completed = ratMappingService.processCompliance(ctx) && ratMappingService.applyScore(ctx);
         }

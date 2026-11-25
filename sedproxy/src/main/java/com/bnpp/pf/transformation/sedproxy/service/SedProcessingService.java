@@ -27,11 +27,11 @@ public class SedProcessingService {
 
     private static final String BAD_REQUEST = "400";
 
-    /** Aceleasi surse, in aceeasi ordine, ca in ApplicationBuilderPG din sed. */
+    /** Aceleasi surse ca in cloud, in ordinea din legacy (ApplicationBuilder, common-api-1.23.jar). */
     static final List<ProxySource> SOURCES = List.of(
             ProxySource.SCAL_PERSON, ProxySource.SCAL_PERSON_INITIAL, ProxySource.SCAL_ENTITY,
-            ProxySource.DNB, ProxySource.CKI, ProxySource.RVDR, ProxySource.VIS,
-            ProxySource.EVA_COMPANY, ProxySource.EVA_PERSON, ProxySource.EVENT_INDICATOR);
+            ProxySource.DNB, ProxySource.RVDR, ProxySource.VIS,
+            ProxySource.EVA_PERSON, ProxySource.EVA_COMPANY, ProxySource.CKI, ProxySource.EVENT_INDICATOR);
 
     private final ApplicationAggregator applicationAggregator;
     private final ApplicationService applicationService;
