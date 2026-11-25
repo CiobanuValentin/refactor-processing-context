@@ -4,9 +4,10 @@
 
 | # | Repo | Clasă | De ce |
 |---|---|---|---|
-| 1 | legacy bkrckiproxy | `MappingService.checkCki`, toată metoda | ce scria legacy pe client și pe loan; baza de comparație pentru `BKRCKIMapper` |
-| 2 | cloud bkrckiproxy | `MappingService` (salvarea și citirea), entitatea, repository-ul, controllerul | câte rânduri există per aplicație și cum se mapează în `GeneralProxyObsDto` |
-| 3 | cloud common-api | `GeneralProxyObsDto`, toată clasa | contractul endpointurilor |
+| 1 | legacy common-api | `ApplicationBuilder.buildApplication` și clasa prin care citește rezultatele din Elasticsearch | cum citea legacy rândurile CKI (toate sau unul) și cum apela mapperul |
+| 2 | legacy common-api | `BKRCKIMapper` (sau echivalentul): `mapCKIData` și `createRiskAssessments` | comparația 1:1 cu mapperul din cloud |
+| 3 | legacy bkrckiproxy | `MappingService` după linia 385 (`mappingRespAndCkiResult`, `getBestMatch`) și cine apelează `createRiskAssessments` | restul logicii de mapare |
+| 3b | cloud bkrckiproxy | `SoapClient.checkCkiRequest`, `CachingService` | unde ajung erorile SOAP; cum se caută în cache |
 | 4 | cloud common-api | `PartialDataFetcherPG.callProxyEndpoint` | cum se citește răspunsul (Jackson sau Gson) și ce întoarce când nu sunt date |
 | 5 | cloud common-api | `BKRVISMapper.checkErrors` | ce adaugă pe loan |
 | 6 | cloud common-api | clasa care apelează `ProcessingFailedException.findIn` | se șterge odată cu excepția |

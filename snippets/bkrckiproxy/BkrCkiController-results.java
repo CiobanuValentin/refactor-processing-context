@@ -1,18 +1,19 @@
-// Exemplu pentru un proxy sursa (bkrckiproxy): endpoint care intoarce toate randurile aplicatiei, in acelasi
-// GeneralProxyObsDto ca endpointul actual. Endpointul vechi ramane pana migreaza rat si sed.
-//
-// DESCHIS: nu am vazut cum salveaza cki randurile (unul per persoana sau unul per aplicatie) si nici cum mapeaza
-// entitatea in GeneralProxyObsDto. Corpul de mai jos presupune ca maparea existenta se poate aplica pe fiecare rand.
+// bkrckiproxy: endpoint care intoarce toate randurile aplicatiei, in acelasi GeneralProxyObsDto ca endpointul actual.
+// Confirmat din MappingService.checkCki (cloud): se salveaza cate un rand pentru fiecare client eligibil,
+// iar fetchCheckCkiRequestAndResponse intoarce doar ultimul (findTop...OrderByCreationDesc).
+// Endpointul vechi ramane pana migreaza rat si sed.
 
 @GetMapping("/checkCki/results")
 public List<GeneralProxyObsDto> getCheckCkiResults(@RequestParam String businessKey, @RequestParam String flowId) {
     return mappingService.fetchCheckCkiResults(businessKey, flowId);
 }
 
-// In MappingService:
+// In MappingService, langa fetchCheckCkiRequestAndResponse:
 public List<GeneralProxyObsDto> fetchCheckCkiResults(String businessKey, String flowId) {
-    // TODO: numele repository-ului si al metodei sunt presupuse
-    return checkCkiRepository.findAllByBusinessKeyAndFlowId(businessKey, flowId).stream()
+    // TODO: metoda de repository trebuie adaugata in CheckCkiRequestAndResponseRepository.
+    // DESCHIS: la o a doua procesare a aceleiasi aplicatii raman si randurile vechi, deci acelasi client apare
+    // de doua ori. De vazut cum citea ApplicationBuilder-ul din legacy (toate randurile sau ultimul per client).
+    return ckiRequestRepo.findAllByBusinessKeyAndFlowIdOrderByCreationAsc(businessKey, flowId).stream()
             .map(entity -> modelMapper.map(entity, GeneralProxyObsDto.class))
             .toList();
 }

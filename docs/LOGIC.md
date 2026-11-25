@@ -92,7 +92,7 @@ Mapperele din `applicationbuilder.utils` și `ProxyDtoBuilder` **nu se modifică
 
 Deschis, de lămurit cu poze din legacy:
 
-- Câte rânduri salvează fiecare proxy sursă pentru o aplicație (unul per persoană sau unul singur).
+- CKI salvează un rând per client eligibil (confirmat). Pentru celelalte surse nu se știe încă.
 - CKI, EVA person și VIS adaugă la fiecare apel risk assessment-uri și pe loan. Apelate per rând, le-ar dubla.
 - Ce făcea legacy cu rezultatele de pe loan (`mappingService.checkCki`, `checkVis` etc. nu au fost văzute).
 
@@ -100,7 +100,27 @@ Deschis, de lămurit cu poze din legacy:
 
 `ApplicationService.saveApplicationRequest(ProxyContext)` (vezi [COMMON-API.md](COMMON-API.md)) păstrează logica existentă: dacă există deja un rând pentru business key, actualizează doar `modifiedDate` și `modifiedBy`. JSON-ul nu se rescrie.
 
-## 6. Rat
+## 6. CKI: legacy față de cloud (din `reference/`)
+
+Proxy-ul cki face același lucru în ambele: pentru fiecare client eligibil construiește cererea, caută în cache, cheamă serviciul SOAP dacă e nevoie și salvează **un rând per client**. Risk assessment-urile nu se construiesc în `checkCki`, ci la agregare.
+
+| | Legacy | Cloud |
+|---|---|---|
+| Rânduri salvate | unul per client eligibil | unul per client eligibil |
+| Citirea pentru rat/sed | nevăzută (`applicationBuilder` din common legacy) | doar ultimul rând (`findTop...OrderByCreationDesc`) |
+| Cache | răspunsul din cache cu erori nu se folosește; se cheamă din nou SOAP | orice răspuns din cache se folosește; cheia e doar `hashCode` |
+| Răspuns SOAP cu erori | răspunsul nu se salvează pe rând, doar erorile | răspunsul se salvează mereu |
+| Erorile de pe rând | cele ale clientului respectiv | toate erorile adunate până atunci (`collectError.removeDuplicateErrors()`) |
+| Parametri CKI lipsă | eroare „CKI Parameters not received" | două texte: cel scurt în handler, unul lung în semnalul de error |
+| Fără clienți | log, fără eroare | fără eroare |
+
+Regulile de eligibilitate (`isEligibleCustomers`, `isEligibleCustomersCoHolder`, `getCompanies`) și construcția cererii sunt identice.
+
+În maparea din legacy (`createRiskAssessments`, `createClassificationResult`) se regăsesc lucruri care apar și în `BKRCKIMapper` din cloud, deci nu sunt de reparat: `"Result"` este mereu `"false"`, `BkrStatus` / `OrgPartyType` / `NeedsManualCheck` sunt suprascrise la fiecare persoană, iar din credite se pune doar unul în `"Loans"`.
+
+Diferență de structură: în legacy `createRiskAssessments(loan, ckiResponse)` pornește de la un singur `SingleBkrResponse`; în cloud `createRiskAssessments(BkrCkiResponse)` pornește de la o listă de `BkrCkiResult`. Legătura dintre ele (mapperul din common legacy) nu a fost văzută.
+
+## 7. Rat
 
 Pași: agregare → loan → clienți/companii → sanction → compliance → score → salvare.
 
@@ -119,7 +139,7 @@ Diferențe de confirmat:
 
 Neschimbate, marcate `TODO`: ramura `isCollateralIsPrivateUse` → endpointul de company, „OnHold" verificat diferit la aplicanți și companii, `getHasAlerts()` fără null-check.
 
-## 7. Sed
+## 8. Sed
 
 Pași: agregare → salvare → loan → clienți/companii → parametri SED → mapare → DES → `bnpOutputMessage`.
 
@@ -131,14 +151,14 @@ Pași: agregare → salvare → loan → clienți/companii → parametri SED →
 | `scoringResult` în output | toate risk assessment-urile | nu pare scris înapoi; doar ultimul de pe loan | scris înapoi, toate (`FIX`) |
 | 5xx de la DES | - | parsat ca răspuns valid | eroare (`FIX`) |
 
-## 8. Proxy-urile simple (vis, rvdr, cki, dnb)
+## 9. Proxy-urile simple (vis, rvdr, cki, dnb)
 
 Listenerul devine cel din secțiunea 2. Serviciul propriu primește `ProxyContext`.
 
 - rvdr: verifică doar clienții și iese cu OK dacă lipsesc (ca în cloud). Rat și sed dau eroare doar dacă lipsesc și clienții, și companiile.
 - dnb: validarea comenzii (`dnb`, `eventindicator`) rămâne în proxy.
 
-## 9. Excepții neașteptate
+## 10. Excepții neașteptate
 
 | | Legacy (vis, dnb, rvdr, cki) | Cloud | Nou (acum) |
 |---|---|---|---|
@@ -150,7 +170,7 @@ Listenerul devine cel din secțiunea 2. Serviciul propriu primește `ProxyContex
 
 Decis: `ProcessingFailedException` se scoate, iar `catch`-ul răspunde cu status KO plus error. Când excepția apare înainte de `updateApplicationStatus`, statusul aplicației din baza de date nu mai e actualizat.
 
-## 10. Ce a fost verificat
+## 11. Ce a fost verificat
 
 - Clasele au fost compilate pe tipuri de probă scrise după poze, fără Lombok și Spring real.
 - 46 de teste trec, rulate ca JUnit 4.
