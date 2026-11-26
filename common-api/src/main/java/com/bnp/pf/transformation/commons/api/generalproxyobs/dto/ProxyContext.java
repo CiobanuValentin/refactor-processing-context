@@ -71,7 +71,7 @@ public class ProxyContext {
     public static ProxyContext of(ArvalOrchestrationMessage message, String correlation, String proxyName) {
         boolean hasMetadata = message != null && message.getMetadata() != null;
         LocalDateTime eventTime = hasMetadata
-                ? eventTime(() -> LocalDateTimeUtils.convertToNewLocalDateTime(message)) : LocalDateTime.now();
+                ? eventTime(() -> LocalDateTimeUtils.arvalConvertToNewLocalDateTime(message)) : LocalDateTime.now();
         CharSequence producer = hasMetadata ? message.getMetadata().getProducer() : null;
         ArvalSignal signal = message == null ? null : message.getData();
         return signal == null
