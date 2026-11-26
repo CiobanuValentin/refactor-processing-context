@@ -1,96 +1,38 @@
-# common-api: modificări de aplicat de mână
+# common-api: modificări de aplicat
 
-Clasele noi din `common-api/src` se copiază ca fișiere întregi. Singurul fișier existent în care trebuie editat de mână este `BKRCKIMapper` (peste 1100 de linii, văzut doar parțial, deci nu poate fi livrat întreg). Sunt două modificări.
+Clasele noi din `common-api/src` se copiază ca fișiere întregi, inclusiv mapperele.
 
-## 1. `BKRCKIMapper.mapCKIData`: primește lista, ca în legacy
+## 1. Mapperele: fișiere întregi, cu listă
 
-**Șterge** aceste două metode întregi:
+În `common-api/src/main/java/com/bnp/pf/transformation/commons/api/applicationbuilder/utils/` sunt cele 7 mappere, regenerate din pozele din 26.11 (codul din cloud) și comparate cu legacy (`reference/legacy/common-api/`):
 
-- `public void mapCKIData(CheckCkiPersonDto checkCkiPersonDto, Application application)`
-- `private boolean processRiskAssessment(SingleBkrRequest request, SingleBkrResponse response, List<Customer> customers, boolean processingFlag, List<BkrCkiResult> bkrResults)`
+`BKRCKIMapper`, `BKREVAMapper`, `BKRVISMapper`, `DNBMapper`, `EventIndicatorMapper`, `RVDRMapper`, `SCALMapper`.
 
-**Pune în locul lor** (copiată din `common-api-1.23`):
+Se copiază peste cele existente din `applicationbuilder.utils`. `BKRCommons` nu e în poze și rămâne neatins.
 
-```java
-    public void mapCKIData(List<CheckCkiPersonDto> matches, Application application) {
-        var ckiResponse = new BkrCkiResponse();
-        List<BkrCkiResult> bkrResults = new ArrayList<>();
-        if (matches != null && !matches.isEmpty()) {
-            var processingFlag = false;
-            log.debug(" Mapping CKI Data started for business key {}", application.getBusinessKey());
-            for (CheckCkiPersonDto requestAndResponse : matches) {
-                if (requestAndResponse != null) {
-                    var customers = application.getLoan().getCustomers();
-                    var request = requestAndResponse.getRequest();
-                    var response = requestAndResponse.getResponse();
+Ce s-a schimbat față de cloud:
 
-                    if (request != null && response != null && customers != null && !customers.isEmpty()) {
-                        for (var customer : customers) {
-                            if (!isCkiExists(customer) && request.getPerson().getName().equals(customer.getLastName())
-                                    && isSameDateOfBirth(request.getPerson().getDateOfBirth(), customer.getBirthDate())
-                                    && request.getPerson().getInitials().equals(getInitialWithOutDot(customer.getInitialsName()))) {
-                                processingFlag = true;
-                                var bkrCkiRslt = createCkiResult(customer, response);
-                                if (Objects.nonNull(bkrCkiRslt)) {
-                                    bkrResults.add(bkrCkiRslt);
-                                }
-                                customer.getRiskAssessments().add(createRiskAssessment(customer, bkrCkiRslt));
-                            }
-                        }
-                    }
-                }
-            }
-            if (!bkrResults.isEmpty()) {
-                ckiResponse.setBkrResults(bkrResults);
-            }
-            if (ckiResponse.getBkrResults() != null && !ckiResponse.getBkrResults().isEmpty()) {
-                application.getLoan().getRiskAssessments().addAll(createRiskAssessments(ckiResponse));
-                processingFlag = true;
-            }
+- Toate metodele publice `map...Data` primesc `List<Check...Dto>`, ca în legacy. Corpul din cloud pentru un rând e păstrat într-o metodă privată, apelată în buclă. Rândurile `null` sunt sărite.
+- **CKI**: rezultatele de pe loan se adaugă o singură dată, după buclă (ca în legacy). Fără rânduri: cele două rezultate goale pe loan.
+- **CKI `collectAllResponses`**: în ramura `else if (singlePerson.getAliases() != null)`, argumentele sunt ca în legacy (`existing, singlePerson`); în cloud erau inversate și se pierdeau creditele și scorurile.
+- **VIS**: fără rânduri, rezultatele implicite pe clienți și pe loan (ramura din legacy).
+- **EVA person**: rezultatele de pe loan se adaugă la fiecare rând fără erori (ca în legacy; la fel ca EVA company).
+- Logurile „started" / „success" apar o dată pe sursă, ca în legacy.
 
-            if (processingFlag) {
-                log.debug(" Mapping CKI Data success for business key {}", application.getBusinessKey());
-            } else {
-                log.debug(" No matching data was found for CKI, business key {}", application.getBusinessKey());
-            }
-        } else {
-            application.getLoan().getRiskAssessments().addAll(createRiskAssessments(ckiResponse));
-        }
-    }
-```
+Păstrat din cloud (fără echivalent în legacy): null-check-urile (SCAL `person1NullCheck` / `foundNullCheck`, RVDR `verifyResponse`, DNB `getPersonalDetails`), DNB `setDnbLatestAccount`.
 
-Până nu faci această înlocuire, `ProxyResultMapperConfig` nu compilează (`List<D> cannot be converted to CheckCkiPersonDto` la `ckiResultMapper`), pentru că `mapCKIData` din cloud primește un singur DTO.
+### Ce trebuie verificat în IDE
 
-După înlocuire, celelalte apeluri ale lui `mapCKIData` (7 usages în IDE) nu mai compilează:
+1. **Importurile**: nu erau vizibile în poze. Șterge blocul de importuri din fiecare fișier și lasă IDE-ul să le refacă (Optimize Imports), apoi compară cu fișierul vechi.
+2. **Rândurile marcate `TODO`** (10): rânduri care ieșeau din ecran sau erau ascunse în poze. Compară-le cu fișierul vechi din IDE (Compare with Clipboard) înainte de commit. Cele mai importante:
+   - `BKRCKIMapper.mapAdditionalResult`, liniile 708-709 din original: nevăzute; `AmountOfActiveLoansTypeTelecomContract` e presupus, a doua linie lipsește;
+   - `BKRCKIMapper.getEachWorstCardScoreValue` / `getEachWorstCardRiskClassValue`: ultimul `filter` e presupus;
+   - `DNBMapper.setDnbLatestAccount` și `setNumberEmployees`: finalul condiției e presupus.
+3. **Celelalte apeluri** ale metodelor `map...Data` (teste, alte clase): `mapXData(dto, application)` devine `mapXData(List.of(dto), application)`. `mapXData(null, application)` compilează în continuare.
 
-- cele din clasele care se șterg oricum (`PartialDataFetcher`, `ApplicationBuilder` vechi) dispar odată cu ele;
-- în teste, `mapCKIData(dto, application)` devine `mapCKIData(List.of(dto), application)`; `mapCKIData(null, application)` rămâne valid așa cum e.
+Neschimbate, deși arată a bug (identice în legacy): în `createRiskAssessments` din EVA și VIS, rezultatul co-holder e pus pe `riskAssmntHolder`; `SCALMapper.addOrCreate` folosește `List.of(...)` (listă imuabilă); restul listei din `docs/LOGIC.md`, secțiunea CKI.
 
-Nu e nevoie de importuri noi: `List`, `ArrayList` și `Objects` sunt deja folosite în clasă.
-
-## 2. `BKRCKIMapper.collectAllResponses`: două linii
-
-În ramura `else if (singlePerson.getAliases() != null)`, argumentele sunt inversate față de legacy.
-
-**Înlocuiește:**
-
-```java
-            mergeCreditLoans(singlePerson, existing);
-            mergeBkrScores(singlePerson, existing);
-```
-
-**cu:**
-
-```java
-            mergeCreditLoans(existing, singlePerson);
-            mergeBkrScores(existing, singlePerson);
-```
-
-Atenție: aceleași două linii apar și în ramura de deasupra, `if (existing.getAliases() != null)`. Acolo sunt corecte și rămân neschimbate; se modifică doar a doua apariție.
-
-De ce: în legacy, când persoana nouă are aliasuri, creditele și scorurile ei se adaugă la persoana deja din mapă. În cloud se adaugă invers, în persoana nouă, care nu ajunge în mapă, deci se pierd.
-
-## 3. De șters din common-api
+## 2. De șters din common-api
 
 - `ProcessingContext`, `ProcessingContextBase`, `ArvalProcessingContext`
 - `CollectError`, `KafkaErrorCollector`

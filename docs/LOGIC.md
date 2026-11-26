@@ -87,25 +87,25 @@ Diferențe față de legacy:
 
 ### Mapperele existente
 
-Mapperele din `applicationbuilder.utils` și `ProxyDtoBuilder` **nu se modifică**. Regula de lucru: logica de mapare rămâne cea din cloud până e comparată, sursă cu sursă, cu legacy.
+`ProxyDtoBuilder` nu se modifică. Mapperele din `applicationbuilder.utils` primesc din nou **lista** cu toate rândurile sursei, ca în legacy; logica de mapare pe un rând rămâne cea din cloud (`APPLY-COMMON.md`, pasul 1).
 
-`ProxyResultMapperConfig` (în `common-api/src`) face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Singura diferență: sursa poate întoarce mai multe rânduri, iar mapperul e apelat pentru fiecare.
+`ProxyResultMapperConfig` (în `common-api/src`) face ce făcea `ApplicationBuilderPG` pentru fiecare sursă: `ProxyDtoBuilder` construiește dto-ul tipizat din `GeneralProxyObsDto`, apoi se apelează mapperul. Sursa poate întoarce mai multe rânduri; mapperul le primește pe toate, într-o listă, o singură dată.
 
 Stare pe surse, după comparația cu diff din IDE (legacy față de cloud):
 
 | Sursă | Legacy | Legătura nouă | Stare |
 |---|---|---|---|
 | CKI | listă; pe loan se adaugă o dată, după buclă | listă, `mapCKIData` readus din legacy | confirmat |
-| VIS | listă; pe loan se adaugă în buclă, la fiecare rând | un apel per rând, mapper neschimbat | confirmat echivalent |
-| EVA person | listă; pe loan se adaugă în buclă | un apel per rând, mapper neschimbat | confirmat echivalent |
+| VIS | listă; pe loan se adaugă în buclă, la fiecare rând | listă; corpul din cloud apelat pe fiecare rând | confirmat echivalent |
+| EVA person | listă; pe loan se adaugă în buclă | listă; corpul din cloud apelat pe fiecare rând | confirmat echivalent |
 | EVA company | listă; pe loan se adaugă în buclă | listă, mapper neschimbat | confirmat identic |
-| SCAL ×3, DNB, RVDR, EventIndicator | listă; nu adaugă nimic pe loan | un apel per rând, mapper neschimbat | confirmat echivalent |
+| SCAL ×3, DNB, RVDR, EventIndicator | listă; nu adaugă nimic pe loan | listă; corpul din cloud apelat pe fiecare rând | confirmat echivalent |
 
 La VIS și EVA, mai multe rânduri fără erori înseamnă mai multe perechi Holder / CoHolder pe loan. Așa era și în legacy, deci nu se schimbă.
 
 Ce face cloud-ul acum când o sursă nu are date: `callProxyEndpoint` întoarce un `GeneralProxyObsDto` gol, nu `null`, iar `ProxyDtoBuilder` face din el un dto cu request `null` și `errors` `null`. Mapperele sunt deci apelate mereu, iar EVA person, EVA company și VIS adaugă rezultatele de pe loan fiindcă `errors == null`. Legătura nouă revine la comportamentul din legacy, descris mai jos.
 
-Fără niciun rând, legacy nu făcea nimic, cu două excepții: VIS punea rezultate implicite pe fiecare client și pe loan, iar CKI punea cele două rezultate goale pe loan. Legătura nouă păstrează ambele. `DNBMapper` și `EventIndicatorMapper` din cloud aruncă NPE dacă primesc `null`, deci nu sunt apelate fără rânduri.
+Fără niciun rând, legacy nu făcea nimic, cu două excepții: VIS punea rezultate implicite pe fiecare client și pe loan, iar CKI punea cele două rezultate goale pe loan. Legătura nouă păstrează ambele. `DNBMapper` și `EventIndicatorMapper` din cloud aruncau NPE pe `null`; metoda nouă cu listă sare rândurile `null`, ca în legacy.
 
 Ce a adăugat cloud-ul în aceste mappere, fără să schimbe rezultatul pe date valide: protecții la null (RVDR `verifyResponse`, SCAL `person1NullCheck` / `foundNullCheck`, DNB `getPersonalDetails`), metode extrase și, la DNB, câmpurile noi `dnbLatestAccountFiledDate` / `Period`. `addOrCreate` din SCAL, cu `List.of(...)`, e identic în legacy.
 

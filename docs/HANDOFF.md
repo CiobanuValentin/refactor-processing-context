@@ -48,7 +48,7 @@ ProxyResultMapperConfig.java:[87,16] method listMapper ... cannot be applied to 
   incompatible types: java.util.List<D> cannot be converted to CheckCkiPersonDto
 ```
 
-Cauza: `BKRCKIMapper.mapCKIData` din cloud primește un singur `CheckCkiPersonDto`. Rezolvarea este pasul 1 din `APPLY-COMMON.md` (readucerea variantei din legacy, cu listă). **Nu a fost aplicat încă**, pentru că se așteaptă confirmarea de mai jos.
+Cauza: `BKRCKIMapper.mapCKIData` din cloud primește un singur `CheckCkiPersonDto`. Rezolvarea: mapperele regenerate, cu listă (`APPLY-COMMON.md`, pasul 1). **Nu au fost aplicate încă.**
 
 ### bkrvisproxy
 
@@ -60,27 +60,11 @@ Clase scrise parțial din poze; vezi `MISSING.md` pentru ce lipsește. Nu se ati
 
 ## De confirmat înainte de a merge mai departe
 
-### A. Toate mapperele primesc listă, sau doar CKI?
+### A. Toate mapperele primesc listă (hotărât, 26 nov)
 
-Valentin crede că toate vor trebui cu listă. Starea de acum în `ProxyResultMapperConfig`:
+Toate mapperele primesc lista cu toate rândurile sursei, ca în legacy. `DtoBackedResultMapper` trimite acum lista, o singură dată pe sursă (goală dacă nu sunt rânduri).
 
-| Sursă | Mapper cloud primește | Cum e legat acum |
-|---|---|---|
-| CKI | un DTO | **listă** (necesită `APPLY-COMMON.md` pasul 1) |
-| EVA company | listă | listă |
-| VIS | un DTO | apel pe fiecare rând; fără rânduri, apel cu `null` |
-| SCAL person / person initial / entity | un DTO | apel pe fiecare rând |
-| DNB, RVDR, EVA person, EventIndicator | un DTO | apel pe fiecare rând |
-
-De ce doar CKI are listă acum: din diff-urile legacy vs cloud, la celelalte tot ce face mapperul se întâmplă **în buclă**, deci un apel pe rând dă același rezultat. La CKI, rezultatele de pe loan se adaugă **o singură dată, după buclă**; apelat pe rând, le-ar adăuga de mai multe ori.
-
-Ce trebuie verificat ca să se închidă întrebarea, pentru fiecare mapper din tabel:
-
-1. Deschide metoda din legacy (`common-api-1.23`, pachet `applicationbuilder`) și pe cea din cloud, cu Compare with Clipboard.
-2. Caută în legacy orice se execută **în afara buclei `for`** peste listă: adăugări pe loan sau application după buclă, flag-uri sau acumulatori care trec de la un rând la altul, ramura `else` pentru listă goală sau `null`.
-3. Dacă există așa ceva: mapperul se readuce la varianta cu listă din legacy și se leagă cu `listMapper(...)`. Dacă nu: rămâne cum e.
-
-Varianta „toate cu listă" este și ea validă și mai apropiată de legacy; costul este readucerea din legacy a încă 8 metode de mapper și repararea testelor lor. Decizia e a lui Valentin și a colegului. Dacă se alege, `DtoBackedResultMapper` dispare și rămâne doar `listMapper`.
+Cele 7 mappere sunt regenerate întregi din pozele din 26.11, în `common-api/src/main/java/.../applicationbuilder/utils/` (vezi `APPLY-COMMON.md`, pasul 1). Au importuri presupuse și 10 rânduri marcate `TODO`, de verificat în IDE.
 
 Separat de mappere, contractul HTTP e deja hotărât: **toate** endpoint-urile surselor întorc `List<GeneralProxyObsDto>`.
 
@@ -89,8 +73,8 @@ Separat de mappere, contractul HTTP e deja hotărât: **toate** endpoint-urile s
 De verificat înainte de release:
 
 1. Common compilează și trec testele în proiectul real.
-2. Cele două editări din `BKRCKIMapper` (`APPLY-COMMON.md`, pașii 1 și 2) sunt aplicate; celelalte apeluri ale lui `mapCKIData` (7 usages) sunt reparate sau dispar cu clasele șterse.
-3. Clasele vechi sunt șterse (`APPLY-COMMON.md`, pasul 3) și nimic din common nu mai depinde de ele.
+2. Mapperele regenerate sunt copiate (`APPLY-COMMON.md`, pasul 1), importurile și `TODO`-urile verificate; celelalte apeluri ale metodelor `map...Data` (de ex. cele 7 ale lui `mapCKIData`) sunt reparate sau dispar cu clasele șterse.
+3. Clasele vechi sunt șterse (`APPLY-COMMON.md`, pasul 2) și nimic din common nu mai depinde de ele.
 4. Vis pornește local cu noul common: listener, `IntegrityCheckService`, `VisSoapClient`, `ProxyObsBeansConfig`, `KafkaConfig.errorHandler` simplificat.
 5. Cine consumă azi `/getVisEntities` și dacă rat/sed de pe mediul respectiv pot fi lăsate nemigrate între timp (vezi nota de compatibilitate de mai sus).
 
@@ -104,7 +88,6 @@ De corectat din IDE când apar erori: `ArvalOrchestrationMessage` / `ArvalSignal
 
 ## Pasul următor
 
-1. Confirmarea A.
-2. Aplică `APPLY-COMMON.md` în common real, compilează, trimite erorile rămase.
-3. Rulează testele din common.
-4. Treci la vis după `bkrvisproxy/MIGRATION.md`.
+1. Aplică `APPLY-COMMON.md` în common real, compilează, trimite erorile rămase.
+2. Rulează testele din common.
+3. Treci la vis după `bkrvisproxy/MIGRATION.md`.

@@ -13,32 +13,22 @@ import com.bnp.pf.transformation.commons.api.message.input.Application;
 
 class DtoBackedResultMapperTest {
 
-    private final List<String> calls = new ArrayList<>();
+    private final List<List<String>> calls = new ArrayList<>();
     private final DtoBackedResultMapper<String> mapper = new DtoBackedResultMapper<>(ProxySource.CKI,
-            result -> "dto:" + result.getFlowId(), (dto, application) -> calls.add(String.valueOf(dto)));
+            result -> "dto:" + result.getFlowId(), (dtos, application) -> calls.add(dtos));
 
     @Test
-    void existingMapperIsCalledOnceForEachResult() {
+    void mapperIsCalledOnceWithAllResults() {
         mapper.apply(Arrays.asList(result("a"), result("b")), new Application(), null);
 
-        assertEquals(List.of("dto:a", "dto:b"), calls);
+        assertEquals(List.of(List.of("dto:a", "dto:b")), calls);
     }
 
     @Test
-    void noResults_existingMapperIsNotCalled() {
+    void noResults_mapperIsCalledOnceWithEmptyList() {
         mapper.apply(List.of(), new Application(), null);
 
-        assertEquals(List.of(), calls);
-    }
-
-    @Test
-    void noResults_mapperThatAsksForIt_isCalledOnceWithNull() {
-        DtoBackedResultMapper<String> vis = new DtoBackedResultMapper<>(ProxySource.VIS,
-                result -> "dto", (dto, application) -> calls.add(String.valueOf(dto)), true);
-
-        vis.apply(List.of(), new Application(), null);
-
-        assertEquals(List.of("null"), calls);
+        assertEquals(List.of(List.of()), calls);
     }
 
     @Test
