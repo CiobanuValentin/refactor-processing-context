@@ -1,7 +1,7 @@
 package com.bnp.pf.transformation.commons.api.applicationbuilder.utils;
 
-// Importurile (liniile 1-73) nu erau vizibile in poze: de corectat din IDE (Optimize Imports).
-import static com.bnp.pf.transformation.commons.api.applicationbuilder.utils.BKRCommons.*;
+// Importuri: aici sunt doar cele sigure. Pastreaza blocul de importuri din fisierul existent (liniile 1-73, inclusiv
+// importurile statice pentru isSameDateOfBirth, RESULT_HOLDER, LOW, ...) si inlocuieste doar corpul clasei.
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 

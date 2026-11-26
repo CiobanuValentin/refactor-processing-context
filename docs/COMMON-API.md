@@ -132,8 +132,7 @@ Toate sunt la fel ca în legacy. La VIS și EVA, mai multe rânduri fără erori
 
 ### Ce nu s-a văzut în poze
 
-- **Importurile** (toate fișierele): sunt presupuse; se refac din IDE (Optimize Imports).
-- **`BKRCommons`**: nu e în poze și nu e regenerat. Mapperele îl folosesc prin `import static ...BKRCommons.*` (`isSameDateOfBirth`, `RESULT_TRUE`, `HOLDER`, ...), presupus.
+- **Importurile** (toate fișierele): în fișierele generate sunt doar cele sigure; se păstrează blocul de importuri din fișierul existent și se înlocuiește doar corpul clasei.
 - **10 rânduri marcate `TODO`**, ieșite din ecran sau ascunse:
 
 | Fișier | Unde | Ce e presupus |

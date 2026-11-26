@@ -1,7 +1,7 @@
 package com.bnp.pf.transformation.commons.api.applicationbuilder.utils;
 
-// Importurile nu erau vizibile in poze: de corectat din IDE (Optimize Imports).
-import static com.bnp.pf.transformation.commons.api.applicationbuilder.utils.BKRCommons.isSameDateOfBirth;
+// Importuri: aici sunt doar cele sigure. Pastreaza blocul de importuri din fisierul existent (inclusiv importurile
+// statice pentru isSameDateOfBirth, RESULT, RESULT_TRUE, HOLDER, LOW, ...) si inlocuieste doar corpul clasei.
 
 import java.util.HashMap;
 import java.util.List;
