@@ -10,9 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
+import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.message.input.Loan;
 
-/** Aceiasi pasi ca pana acum: salvarea aplicatiei, verificarea loan-ului si a partilor, apoi verificarea VIS. */
+/** Aceiasi pasi ca in cloud: verificarea aplicatiei, salvarea ei, verificarea loan-ului si a partilor, apoi verificarea VIS. */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,13 +24,19 @@ public class IntegrityCheckService {
     private final ApplicationService applicationService;
     private final VisCheckService visCheckService;
 
-    /** Se apeleaza doar dupa ProxyContextValidator.validate(ctx) == true, deci aplicatia exista. */
+    /** Se apeleaza dupa ProxyContextValidator.validate(ctx) == true; verificarea aplicatiei ramane, ca in cloud. */
     public void loanCheckProcess(ProxyContext ctx) {
+        Application application = ctx.getApplication();
+        if (application == null) {
+            log.error("No application in context for businessKey {}, skipping loan check", ctx.getBusinessKey());
+            return;
+        }
+
         if (!saveApplication(ctx)) {
             return;
         }
 
-        Loan loan = ctx.getApplication().getLoan();
+        Loan loan = application.getLoan();
         if (loan == null) {
             log.error(LOAN_EMPTY);
             ctx.addError(BAD_REQUEST, LOAN_EMPTY);
