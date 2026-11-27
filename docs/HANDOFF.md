@@ -1,4 +1,4 @@
-# Handoff: unde am ajuns (25 nov 2026, seara)
+# Handoff: unde am ajuns (actualizat 27 nov 2026)
 
 Document pentru instanța de Claude Code a colegului. Citește întâi acest fișier, apoi `LOGIC.md`, `COMMON-API.md`, `APPLY-COMMON.md`, `MISSING.md`.
 
@@ -41,18 +41,11 @@ Scris și urcat aici: `ProxyContext`, `ProxyContextValidator`, `ProxyResultPubli
 - pachetul Avro real este `com.bnp.pf.transformation.orchestrator.avro`;
 - `ProxyContextTest`: testul de event time depindea de un format de dată necunoscut; a rămas doar verificarea de producer.
 
-**Blocat acum pe o eroare de compilare:**
-
-```
-ProxyResultMapperConfig.java:[87,16] method listMapper ... cannot be applied to given types
-  incompatible types: java.util.List<D> cannot be converted to CheckCkiPersonDto
-```
-
-Cauza: `BKRCKIMapper.mapCKIData` din cloud primește un singur `CheckCkiPersonDto`. Rezolvarea: mapperele regenerate, cu listă (`APPLY-COMMON.md`, pasul 1). **Nu au fost aplicate încă.**
+Eroarea de compilare din `ProxyResultMapperConfig` (`List<D> cannot be converted to CheckCkiPersonDto`) e rezolvată în acest repo: toate mapperele sunt regenerate cu listă (26-27 nov). În proiectul real mai trebuie copiate (`APPLY-COMMON.md`, pasul 1) și compilate.
 
 ### bkrvisproxy
 
-Clasele noi sunt scrise (`bkrvisproxy/` + `MIGRATION.md`). Neîncercate în proiectul real; se începe după ce common compilează și trec testele.
+Proxy-ul e generat întreg pe noul common, cu teste (`bkrvisproxy/` + `MIGRATION.md`, care e și modelul pentru celelalte proxy-uri).
 
 ### sed, rat, rvdr
 
