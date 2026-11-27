@@ -47,7 +47,6 @@ public class IntegrityCheckService {
             return;
         }
 
-        // TODO: CreditCheckService.checkCredit trebuie sa primeasca ProxyContext si sa foloseasca ctx.addError(...)
         creditCheckService.checkCredit(ctx, loan);
     }
 

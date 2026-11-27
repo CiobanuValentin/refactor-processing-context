@@ -31,7 +31,7 @@ public class IntegrityCheckService {
             return;
         }
 
-        /* ...liniile 45-49 nu erau in poza */
+        // (confirmat din pozele din 27.11: intre verificarea loan-ului si cea a clientilor nu mai e nimic)
         if (CollectionUtils.isEmpty(loan.getCustomers())) {
             log.warn("No valid Customers found in Application with businessKey: {}", processingContext.getBusinessKey());
             return;
