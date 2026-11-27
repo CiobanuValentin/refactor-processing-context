@@ -30,9 +30,10 @@ import org.modelmapper.ModelMapper;
 
 import com.google.gson.Gson;
 
-// TODO: scris dupa modelul VisCheckServiceTest, inainte de a vedea testul existent din rvdr; importurile pentru
-// ApplicantType, Customer, Error, GeneralProxyObsCacheDto si clasele WSDL (CreditCheckRequest, CreditCheckResponse)
-// sunt presupuse sau lipsesc - pastreaza-le pe cele din testul actual.
+// Aceleasi teste ca in testul existent (pozele din 27.11), cu ProxyContext in loc de ProcessingContext; producer-ul
+// vine din metadata mesajului. In plus: customers null.
+// TODO: importurile pentru ApplicantType, Customer, Error, GeneralProxyObsCacheDto si clasele WSDL
+// (CreditCheckRequest, CreditCheckResponse) sunt presupuse sau lipsesc - pastreaza-le pe cele din testul actual.
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsCacheDto;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
@@ -80,9 +81,13 @@ class CreditCheckServiceTest {
         loan = new Loan();
     }
 
-    private static Customer customer(String applicantType) {
+    private static Customer person() {
+        return new Customer();
+    }
+
+    private static Customer companyPerson() {
         Customer customer = new Customer();
-        customer.setApplicantType(applicantType);
+        customer.setApplicantType(COMPANY_PERSON.getApplicant());
 
         return customer;
     }
@@ -138,7 +143,7 @@ class CreditCheckServiceTest {
 
     @Test
     void checkCredit_whenOnlyCompanyPersons_shouldSkipThem() {
-        loan.setCustomers(List.of(customer(COMPANY_PERSON.getApplicant())));
+        loan.setCustomers(List.of(companyPerson()));
 
         creditCheckService.checkCredit(ctx, loan);
 
@@ -147,7 +152,7 @@ class CreditCheckServiceTest {
 
     @Test
     void checkCredit_whenResponseIsCached_shouldSaveCachedResponseWithoutSoapCall() {
-        Customer customer = customer("INDIVIDUAL");
+        Customer customer = person();
         loan.setCustomers(List.of(customer));
         CreditCheckRequest request = givenRequestFor(customer);
         LocalDate cachedDate = LocalDate.of(2026, 1, 10);
@@ -169,7 +174,7 @@ class CreditCheckServiceTest {
 
     @Test
     void checkCredit_whenSoapCallSucceeds_shouldCacheAndSaveResponse() {
-        Customer customer = customer("INDIVIDUAL");
+        Customer customer = person();
         loan.setCustomers(List.of(customer));
         CreditCheckRequest request = givenRequestFor(customer);
         CreditCheckResponse response = new CreditCheckResponse();
@@ -188,7 +193,7 @@ class CreditCheckServiceTest {
 
     @Test
     void checkCredit_whenSoapCallReturnsErrors_shouldSaveErrorsAndNotCache() {
-        Customer customer = customer("INDIVIDUAL");
+        Customer customer = person();
         loan.setCustomers(List.of(customer));
         CreditCheckRequest request = givenRequestFor(customer);
         Error error = new Error("502", "SOAP Call Error");
@@ -203,10 +208,11 @@ class CreditCheckServiceTest {
     }
 
     @Test
-    void checkCredit_whenSeveralCustomers_shouldSaveEachEligibleOneWithItsOwnErrorsOnly() {
-        Customer failing = customer("INDIVIDUAL");
-        Customer passing = customer("INDIVIDUAL");
-        loan.setCustomers(List.of(failing, customer(COMPANY_PERSON.getApplicant()), passing));
+    void checkCredit_whenSeveralCustomers_shouldSaveEachWithItsOwnErrorsOnly() {
+        Customer failing = person();
+        Customer passing = person();
+        Customer company = companyPerson();
+        loan.setCustomers(List.of(failing, passing, company));
         CreditCheckRequest failingRequest = givenRequestFor(failing);
         CreditCheckRequest passingRequest = givenRequestFor(passing);
         Error error = new Error("502", "SOAP Call Error");

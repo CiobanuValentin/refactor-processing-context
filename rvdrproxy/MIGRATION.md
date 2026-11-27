@@ -41,8 +41,8 @@ Sursa: proiectul `rvdrproxy`, branch `feature/proxy-refactorization-2.0` (pozele
 | `controller/RvdrControllerTest` | **înlocuit**: listă | 2 |
 | `service/CreditCheckCacheServiceTest` | neschimbat (nu e în acest folder) | - |
 | `service/CreditCheckRecordServiceTest` | **înlocuit**: `save` ca înainte, `fetch` pe listă | 4 |
-| `service/CreditCheckServiceTest` | **înlocuit**; scris după modelul din vis, **înainte de a vedea testul existent** | 7 |
-| `service/IntegrityCheckServiceTest` | **înlocuit**; scris **înainte de a vedea testul existent** | 5 |
+| `service/CreditCheckServiceTest` | **înlocuit**: aceleași 6 teste ca în cel existent + customers `null` | 7 |
+| `service/IntegrityCheckServiceTest` | **înlocuit**: aceleași 5 scenarii ca în cel existent, cu `ApplicationBuilder.createApplication()` | 5 |
 
 Fiecare clasă nouă sau modificată din `main` are test. Testele nu au fost compilate sau rulate; acoperirea reală se vede doar în proiect (JaCoCo). Testele existente, transcrise, sunt în `reference/cloud/rvdrproxy/test/`.
 
@@ -81,5 +81,4 @@ Diferențe care există deja în cloud și au rămas neatinse:
 ## De verificat
 
 1. `CreditCheckEntity`: dacă `flowId` are `unique = true` (ca `CheckVisEntity`), al doilea client de pe același flow nu se poate salva.
-2. Testele existente pentru `CreditCheckService` și `IntegrityCheckService` (poze), ca să fie aliniate cele scrise aici.
 3. Nimic nu a fost compilat.

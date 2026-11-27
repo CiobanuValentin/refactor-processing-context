@@ -19,17 +19,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-// TODO: importurile pentru Error si Customer sunt presupuse.
+// TODO: importul pentru Error este presupus.
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ApplicationService;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
-import com.bnp.pf.transformation.commons.api.message.input.Loan;
-import com.bnp.pf.transformation.commons.api.model.Customer;
 
+import com.bnp.pf.transformation.rvdrproxy.builder.ApplicationBuilder;
 import com.bnp.pf.transformation.rvdrproxy.builder.ContextBuilder;
 
-/** Dupa modelul din vis: erorile se citesc din ProxyContext; aceleasi scenarii ca in cloud. */
+/**
+ * Aceleasi scenarii ca in testul existent (pozele din 27.11); erorile se citesc din ProxyContext, iar JSON-ul
+ * aplicatiei il construieste acum ApplicationService (saveApplicationRequest(ctx)).
+ */
 @ExtendWith(MockitoExtension.class)
 class IntegrityCheckServiceTest {
     private static final String BUSINESS_KEY = "BK-001";
@@ -47,10 +49,8 @@ class IntegrityCheckServiceTest {
 
     @BeforeEach
     void init() {
-        Loan loan = new Loan();
-        loan.setCustomers(List.of(new Customer()));
-        application = ContextBuilder.application(BUSINESS_KEY);
-        application.setLoan(loan);
+        application = ApplicationBuilder.createApplication();
+        application.setBusinessKey(BUSINESS_KEY);
         ctx = ContextBuilder.context(application);
     }
 
@@ -65,7 +65,7 @@ class IntegrityCheckServiceTest {
     }
 
     @Test
-    void loanCheckProcess_whenNoCustomers_shouldSkipCreditCheckWithoutError() {
+    void loanCheckProcess_whenCustomersEmpty_shouldSaveApplicationAndSkipCreditCheckWithoutError() {
         application.getLoan().setCustomers(List.of());
 
         integrityCheckService.loanCheckProcess(ctx);
@@ -76,7 +76,7 @@ class IntegrityCheckServiceTest {
     }
 
     @Test
-    void loanCheckProcess_whenLoanIsNull_shouldReportLoanNotPresent() {
+    void loanCheckProcess_whenLoanIsNull_shouldSaveApplicationAndReportLoanNotPresent() {
         application.setLoan(null);
 
         integrityCheckService.loanCheckProcess(ctx);
