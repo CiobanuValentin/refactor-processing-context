@@ -12,7 +12,7 @@ Actualizat 26 nov 2026, după regenerarea mapperelor. Comparat cu ce e în repo,
 - [x] Transcrieri cloud: `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper`, restul din `BKRCKIMapper` (acum fișiere întregi în `common-api/`); `MappingService` din cki și `PartialDataFetcherPG` sunt în `reference/cloud/`.
 - [x] `BKRCommons`: adăugat, ca în cloud (constantele `RESULT*`, constructor privat).
 - [x] Rândurile `TODO` din mappere: verificate pe pozele clare (`Common_Mappers_V2`) și închise.
-- [x] Teste pentru toate cele 7 mappere (55 de teste, în `common-api/src/test/.../applicationbuilder/utils/`).
+- [x] Teste pentru varianta cu listă a celor 7 mappere (`*ListTest`, în stilul testelor existente); testele existente: doar `List.of(result)` (vezi `COMMON-API.md`, „Teste”).
 
 ## De verificat la copierea în proiectul real
 

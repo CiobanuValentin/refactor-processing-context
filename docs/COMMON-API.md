@@ -141,18 +141,30 @@ Toate sunt la fel ca în legacy. La VIS și EVA, mai multe rânduri fără erori
 
 ### Teste
 
-`common-api/src/test/java/com/bnp/pf/transformation/commons/api/applicationbuilder/utils/`: câte o clasă pentru fiecare mapper (`BKRCKIMapperTest`, `BKREVAMapperTest`, `BKRVISMapperTest`, `DNBMapperTest`, `EventIndicatorMapperTest`, `RVDRMapperTest`, `SCALMapperTest`) și `MapperTestData` (aplicație, clienți, companii, date). 55 de teste.
+Proiectul real are deja câte un test pentru fiecare mapper (`BKRCKIMapperTest`, `BKREVAMapperTest`, ...), cu fișiere JSON din resources, `ApplicationUtil.createFullApplication` și `FileUtil.readFileResource`.
 
-Ce acoperă, pentru fiecare mapper: listă `null` / goală, potrivire pe client sau companie, nepotrivire, mai multe rânduri cu rânduri `null` sărite, plus regulile specifice:
+**Testele existente**: singura schimbare e apelul mapperului, care primește acum listă:
 
-- CKI: rezultatele de pe loan adăugate **o singură dată** pentru mai multe rânduri; client cu CKI existent sărit; `collectAllResponses` (ambele ramuri cu aliasuri); `highRisk`, `getDuration`, `getInstallment` (balon, fără dată finală, OA dinainte de 02.04.2022), `getTotalAmount`;
-- EVA / VIS: rezultatele de pe loan pentru fiecare rând fără erori; rând cu erori nu atinge loan-ul; VIS fără rânduri pune rezultate implicite; comportamentul moștenit din legacy (rezultatul co-holder pus pe holder) e fixat într-un test, ca să nu fie schimbat din greșeală;
-- DNB: toate câmpurile din payload, `numberOfEmployees` lipsă când lista e `null`, răspuns fără CCDP;
-- EventIndicator: `output01..25`, `active`, `addDate`;
-- SCAL: person / person initial / entity, prefixul numelui, `person1` lipsă;
-- RVDR: `CirCheck` / `CcbrCheck`, răspuns lipsă, număr de casă diferit.
+```java
+bkrevaMapper.mapEVAPersonData(result, application);           // înainte
+bkrevaMapper.mapEVAPersonData(List.of(result), application);  // acum (+ import java.util.List)
+```
 
-Verificate: compilate și rulate (JUnit 5, AssertJ, toate trec) pe clase minimale pentru tipurile din proiect care nu sunt în repo (`Customer`, `Organisation`, `RiskAssessment`, tipurile WSDL, dto-urile `Check*`). La copiere: importurile se iau din mapperul testat; testele presupun setteri Lombok pe aceste clase. Compilarea a găsit un import lipsă în `BKRCKIMapper` (`Loan`), corectat.
+La fel pentru `mapCKIData`, `mapVISData`, `mapDNBData`, `mapEventIndicatorData`, `mapRVDRData`, `mapScalPersonData`, `mapScalPersonInitialData`, `mapScalEntityData`. `mapEVACompanyData` și testul parametrizat din VIS primeau deja listă.
+
+**Teste noi** (`common-api/src/test/.../applicationbuilder/utils/*ListTest.java`), în același stil și pe aceleași fișiere JSON, fără tipuri WSDL:
+
+| Clasă | Ce verifică |
+|---|---|
+| `BKRCKIMapperListTest` | listă goală / `null` → cele două rezultate goale pe loan; mai multe rânduri → rezultatele de pe loan adăugate o singură dată, clientul o singură dată |
+| `BKREVAMapperListTest` | person: un rând ca înainte, listă goală nu schimbă nimic, mai multe rânduri → client o dată, loan pe fiecare rând; company: loan pe fiecare rând |
+| `BKRVISMapperListTest` | listă goală / `null` → rezultat implicit pe client + 2 pe loan; mai multe rânduri → client o dată, loan pe fiecare rând |
+| `DNBMapperListTest` | aceleași valori ca testul existent, rânduri `null` sărite, listă goală nu schimbă compania |
+| `EventIndicatorMapperListTest` | aceeași valoare ca testul existent, rânduri `null` sărite, listă goală |
+| `RVDRMapperListTest` | listă goală, un rând, rânduri `null`, două rânduri → două rezultate (ca în legacy), clienți `null` |
+| `SCALMapperListTest` | person / person initial / entity cu rânduri `null` și listă goală; două rânduri → două rezultate (ca în legacy) |
+
+Verificate doar la compilare (pe clase minimale); nu au fost rulate, pentru că fișierele JSON și `ApplicationUtil` sunt doar în proiectul real. Unde rezultatul depinde de conținutul JSON-ului, testele compară relativ (de exemplu: „două rânduri adaugă pe loan de două ori cât un rând”), nu cu numere fixe.
 
 ### Legătura în agregare
 

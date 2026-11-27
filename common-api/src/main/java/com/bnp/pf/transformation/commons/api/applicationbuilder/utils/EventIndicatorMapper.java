@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.xml.datatype.XMLGregorianCalendar;
+import com.bnp.pf.transformation.commons.api.applicationbuilder.swagger.model.XMLGregorianCalendar;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
