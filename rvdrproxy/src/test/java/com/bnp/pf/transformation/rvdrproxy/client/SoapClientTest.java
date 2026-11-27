@@ -1,4 +1,4 @@
-package rvdrproxy.client;
+package com.bnp.pf.transformation.rvdrproxy.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -17,12 +17,11 @@ import jakarta.xml.ws.soap.SOAPFaultException;
 
 import com.bnp.pf.transformation.commons.api.error.Error;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.ProxyContext;
-import com.bnp.pf.transformation.rvdrproxy.client.SoapClient;
 import com.bnp.pf.transformation.rvdrproxy.model.CreditCheckResult;
 
 // TODO: importurile pentru clasele generate din WSDL (CreditCheckPort, CreditCheckRequest, CreditCheckResponse,
-// ErrorType, ErrorsType) lipsesc - ia-le din SoapClient.
-import rvdrproxy.builder.ContextBuilder;
+// ErrorType, ErrorsType, ConnectException_Exception) lipsesc - pastreaza-le pe cele din testul actual.
+import com.bnp.pf.transformation.rvdrproxy.builder.ContextBuilder;
 
 /**
  * Dupa modelul din vis: in loc de CollectError + errorMap, erorile se citesc din ProxyContext. Textul din context e cel care
@@ -66,7 +65,7 @@ class SoapClientTest {
     }
 
     @Test
-    void creditCheckRequest_WhenResponseHasNoErrors_shouldReturnItAndRegisterNothing() {
+    void creditCheckRequest_WhenResponseHasNoErrors_shouldReturnItAndRegisterNothing() throws ConnectException_Exception {
         CreditCheckResponse response = new CreditCheckResponse();
         when(creditCheckPort.creditCheck(request)).thenReturn(response);
 
@@ -78,7 +77,7 @@ class SoapClientTest {
     }
 
     @Test
-    void creditCheckRequest_WhenResponseHasBusinessErrors_shouldRegisterEachError() {
+    void creditCheckRequest_WhenResponseHasBusinessErrors_shouldRegisterEachError() throws ConnectException_Exception {
         ErrorsType errors = new ErrorsType();
         errors.getError().add(errorType("E1", "Invalid client"));
         errors.getError().add(errorType("E2", "Limit exceeded"));
@@ -101,7 +100,7 @@ class SoapClientTest {
     }
 
     @Test
-    void creditCheckRequest_whenSoapFault_shouldReturn502AndRegisterError() {
+    void creditCheckRequest_whenSoapFault_shouldReturn502AndRegisterError() throws ConnectException_Exception {
         SOAPFault fault = mock(SOAPFault.class);
         when(fault.getFaultString()).thenReturn("Service unavailable");
         SOAPFaultException soapFaultException = new SOAPFaultException(fault);
@@ -120,7 +119,7 @@ class SoapClientTest {
     }
 
     @Test
-    void creditCheckRequest_whenUnexpectedException_shouldReturn555AndRegisterError() {
+    void creditCheckRequest_whenUnexpectedException_shouldReturn555AndRegisterError() throws ConnectException_Exception {
         when(creditCheckPort.creditCheck(request)).thenThrow(new RuntimeException("Read timed out"));
         CreditCheckResult result = soapClient.creditCheckRequest(ctx, request);
 
@@ -135,7 +134,7 @@ class SoapClientTest {
     }
 
     @Test
-    void creditCheckRequest_whenResponseIsNull_shouldReturn555AndRegisterError() {
+    void creditCheckRequest_whenResponseIsNull_shouldReturn555AndRegisterError() throws ConnectException_Exception {
         when(creditCheckPort.creditCheck(request)).thenReturn(null);
         CreditCheckResult result = soapClient.creditCheckRequest(ctx, request);
 

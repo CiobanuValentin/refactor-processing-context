@@ -1,4 +1,4 @@
-package rvdrproxy.controller;
+package com.bnp.pf.transformation.rvdrproxy.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bnp.pf.transformation.commons.api.generalproxyobs.dto.GeneralProxyObsDto;
-import com.bnp.pf.transformation.rvdrproxy.controller.RvdrController;
 import com.bnp.pf.transformation.rvdrproxy.service.CreditCheckRecordService;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +27,7 @@ class RvdrControllerTest {
     private RvdrController rvdrController;
 
     @Test
-    void getCreditChecks_shouldReturnAllRows() {
+    void getCreditCheck_shouldReturnDtos_whenCalledWithValidParams() {
         List<GeneralProxyObsDto> rows = List.of(new GeneralProxyObsDto(), new GeneralProxyObsDto());
         when(creditCheckRecordService.fetchCheckCredits(BUSINESS_KEY, FLOW_ID)).thenReturn(rows);
 
@@ -37,7 +36,7 @@ class RvdrControllerTest {
     }
 
     @Test
-    void getCreditChecks_shouldReturnEmptyList_whenNothingSaved() {
+    void getCreditCheck_shouldReturnEmptyList_whenServiceReturnsNothing() {
         when(creditCheckRecordService.fetchCheckCredits(BUSINESS_KEY, FLOW_ID)).thenReturn(List.of());
 
         assertEquals(List.of(), rvdrController.getCreditChecks(BUSINESS_KEY, FLOW_ID));

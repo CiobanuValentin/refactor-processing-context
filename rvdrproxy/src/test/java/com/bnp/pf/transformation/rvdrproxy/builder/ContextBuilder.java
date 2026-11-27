@@ -1,4 +1,4 @@
-package rvdrproxy.builder;
+package com.bnp.pf.transformation.rvdrproxy.builder;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package rvdrproxy.controller;
+package com.bnp.pf.transformation.rvdrproxy.controller;
 
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.APPLICATION;
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.CORRELATION_ID_NOT_PROVIDED;
@@ -32,10 +32,9 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.service.Application
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ProxyContextValidator;
 import com.bnp.pf.transformation.commons.api.generalproxyobs.service.ProxyResultPublisher;
 import com.bnp.pf.transformation.orchestrator.avro.OrchestrationMessage;
-import com.bnp.pf.transformation.rvdrproxy.controller.ProxyListener;
 import com.bnp.pf.transformation.rvdrproxy.service.IntegrityCheckService;
 
-import rvdrproxy.builder.ContextBuilder;
+import com.bnp.pf.transformation.rvdrproxy.builder.ContextBuilder;
 
 /**
  * Rescris pentru fluxul nou: ProxyContext.of -> ProxyContextValidator -> IntegrityCheckService -> status in DB -> publish.

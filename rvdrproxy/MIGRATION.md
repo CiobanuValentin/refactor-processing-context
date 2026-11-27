@@ -27,16 +27,38 @@ Sursa: proiectul `rvdrproxy`, branch `feature/proxy-refactorization-2.0` (pozele
 | `service/CreditCheckService` | **înlocuit**: `ProxyContext`; logurile cu date de client la `debug` |
 | `entity/`, `utils/BuildDTOsUtility` | neschimbate (nevăzute) |
 
-`src/test/java/rvdrproxy/` (pachetul de test e presupus, după cel din vis)
+`src/test/java/com/bnp/pf/transformation/rvdrproxy/` (pachetul real, văzut în pozele din 27.11)
 
-| Fișier | Stare |
+| Fișier | Ce se face | Teste |
+|---|---|---|
+| `builder/ApplicationBuilder` | neschimbat (nu e în acest folder) | - |
+| `builder/ContextBuilder` | **nou**: construiește `ProxyContext` din mesaj | - |
+| `client/SoapClientTest` | **înlocuit**: erorile se citesc din context | 5 |
+| `config/MappingConfigTest` | neschimbat (nu e în acest folder) | - |
+| `config/ProxyObsBeansConfigTest` | **nou** | 2 |
+| `config/KafkaConfigTest` | **nou** | 2 |
+| `controller/ProxyListenerTest` | **înlocuit**: fluxul nou | 7 |
+| `controller/RvdrControllerTest` | **înlocuit**: listă | 2 |
+| `service/CreditCheckCacheServiceTest` | neschimbat (nu e în acest folder) | - |
+| `service/CreditCheckRecordServiceTest` | **înlocuit**: `save` ca înainte, `fetch` pe listă | 4 |
+| `service/CreditCheckServiceTest` | **înlocuit**; scris după modelul din vis, **înainte de a vedea testul existent** | 7 |
+| `service/IntegrityCheckServiceTest` | **înlocuit**; scris **înainte de a vedea testul existent** | 5 |
+
+Fiecare clasă nouă sau modificată din `main` are test. Testele nu au fost compilate sau rulate; acoperirea reală se vede doar în proiect (JaCoCo). Testele existente, transcrise, sunt în `reference/cloud/rvdrproxy/test/`.
+
+Ce s-a schimbat față de testele vechi din `ProxyListenerTest`:
+
+| Test vechi | Acum |
 |---|---|
-| `builder/ContextBuilder` | nou |
-| `controller/ProxyListenerTest`, `controller/RvdrControllerTest` | scrise după modelul din vis |
-| `service/IntegrityCheckServiceTest` | scris |
-| `client/SoapClientTest` | scris; lipsesc importurile WSDL |
-| `service/CreditCheckServiceTest`, `CreditCheckRecordServiceTest` | **de adaptat** din cele existente: `ProxyContext` din `ContextBuilder`; `fetchCheckCredit` devine `fetchCheckCredits` (listă) |
-| `service/CreditCheckCacheServiceTest` | neschimbat |
+| `whenNoErrors_shouldSetStatusOkAndPublishOnlyStatus` | `whenNoErrors_shouldSetStatusOkAndPublish` |
+| `whenErrorsExist_...`, `whenOnlyErrorSignalsExist_...`, `whenErrorsButNoSignal_...` | `whenIntegrityCheckRegistersErrors_shouldSetStatusKoAndPublish` (semnalele de error nu mai există; conținutul publicat e testat în common, `ProxyResultPublisherTest`) |
+| `whenCorrelationCheckFails_shouldPublishOnlyErrorsAndStop` | `whenCorrelationMissing_shouldPublishErrorWithoutProcessing` |
+| `whenBusinessKeyOrFlowIdMissing_...` | două teste, câte unul pentru fiecare |
+| `whenIntegrityCheckThrows_shouldWrapInProcessingFailedException...` | `whenIntegrityCheckThrows_shouldPublishKoWithErrorInsteadOfThrowing` |
+| `whenApplicationEmptyCheckThrows_...` | dispare: validatorul nu aruncă; JSON invalid e testat în common |
+| `whenStatusUpdateFails_shouldStillPublishStatusAndErrors` | **nu mai are echivalent identic**, vezi mai jos |
+
+**Diferență de comportament de confirmat:** în cloud, dacă `updateApplicationStatus` arunca, listenerul loga și publica statusul calculat (OK sau KO). Acum excepția ajunge în `catch`, se adaugă eroarea `500` și se publică KO + error. Dacă vrei comportamentul din cloud, se pune un `try/catch` în jurul lui `updateApplicationStatus` (în toate listenerele, inclusiv vis).
 
 Textele de pe topicul de error sunt cele din cloud: `CreditCheck returned an error: <cod>:<mesaj>` și `Error when executing external SOAP call creditCheckRequest(): <mesaj>`.
 
@@ -59,5 +81,5 @@ Diferențe care există deja în cloud și au rămas neatinse:
 ## De verificat
 
 1. `CreditCheckEntity`: dacă `flowId` are `unique = true` (ca `CheckVisEntity`), al doilea client de pe același flow nu se poate salva.
-2. Testele existente pentru `CreditCheckService` și `CreditCheckRecordService`.
+2. Testele existente pentru `CreditCheckService` și `IntegrityCheckService` (poze), ca să fie aliniate cele scrise aici.
 3. Nimic nu a fost compilat.

@@ -1,4 +1,4 @@
-package rvdrproxy.service;
+package com.bnp.pf.transformation.rvdrproxy.service;
 
 import static com.bnp.pf.transformation.commons.api.generalproxyobs.util.ProxyObsConstant.LOAN_EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,10 +26,8 @@ import com.bnp.pf.transformation.commons.api.generalproxyobs.service.Application
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.message.input.Loan;
 import com.bnp.pf.transformation.commons.api.model.Customer;
-import com.bnp.pf.transformation.rvdrproxy.service.CreditCheckService;
-import com.bnp.pf.transformation.rvdrproxy.service.IntegrityCheckService;
 
-import rvdrproxy.builder.ContextBuilder;
+import com.bnp.pf.transformation.rvdrproxy.builder.ContextBuilder;
 
 /** Dupa modelul din vis: erorile se citesc din ProxyContext; aceleasi scenarii ca in cloud. */
 @ExtendWith(MockitoExtension.class)
