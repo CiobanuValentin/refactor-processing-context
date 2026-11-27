@@ -139,6 +139,21 @@ Toate sunt la fel ca în legacy. La VIS și EVA, mai multe rânduri fără erori
   Restul rândurilor (inclusiv liniile 708-709 din `mapAdditionalResult`: `MailOrder` / `TelecomContract`) erau corecte.
 - **`BKRCommons`**: adăugat în `utils`, ca în cloud (`RESULT`, `RESULT_TRUE`, `RESULT_FALSE`, `RESULT_HOLDER`, `RESULT_CO_HOLDER`); folosit prin `import static ...BKRCommons.*` în CKI, EVA și VIS.
 
+### Teste
+
+`common-api/src/test/java/com/bnp/pf/transformation/commons/api/applicationbuilder/utils/`: câte o clasă pentru fiecare mapper (`BKRCKIMapperTest`, `BKREVAMapperTest`, `BKRVISMapperTest`, `DNBMapperTest`, `EventIndicatorMapperTest`, `RVDRMapperTest`, `SCALMapperTest`) și `MapperTestData` (aplicație, clienți, companii, date). 55 de teste.
+
+Ce acoperă, pentru fiecare mapper: listă `null` / goală, potrivire pe client sau companie, nepotrivire, mai multe rânduri cu rânduri `null` sărite, plus regulile specifice:
+
+- CKI: rezultatele de pe loan adăugate **o singură dată** pentru mai multe rânduri; client cu CKI existent sărit; `collectAllResponses` (ambele ramuri cu aliasuri); `highRisk`, `getDuration`, `getInstallment` (balon, fără dată finală, OA dinainte de 02.04.2022), `getTotalAmount`;
+- EVA / VIS: rezultatele de pe loan pentru fiecare rând fără erori; rând cu erori nu atinge loan-ul; VIS fără rânduri pune rezultate implicite; comportamentul moștenit din legacy (rezultatul co-holder pus pe holder) e fixat într-un test, ca să nu fie schimbat din greșeală;
+- DNB: toate câmpurile din payload, `numberOfEmployees` lipsă când lista e `null`, răspuns fără CCDP;
+- EventIndicator: `output01..25`, `active`, `addDate`;
+- SCAL: person / person initial / entity, prefixul numelui, `person1` lipsă;
+- RVDR: `CirCheck` / `CcbrCheck`, răspuns lipsă, număr de casă diferit.
+
+Verificate: compilate și rulate (JUnit 5, AssertJ, toate trec) pe clase minimale pentru tipurile din proiect care nu sunt în repo (`Customer`, `Organisation`, `RiskAssessment`, tipurile WSDL, dto-urile `Check*`). La copiere: importurile se iau din mapperul testat; testele presupun setteri Lombok pe aceste clase. Compilarea a găsit un import lipsă în `BKRCKIMapper` (`Loan`), corectat.
+
 ### Legătura în agregare
 
 `ProxyResultMapperConfig` leagă toate cele 10 surse prin `DtoBackedResultMapper`, care construiește dto-ul fiecărui rând cu `ProxyDtoBuilder` și cheamă mapperul o singură dată, cu toată lista (goală dacă sursa n-a întors nimic). Varianta veche „un apel pe rând" și opțiunea „apel cu `null` pentru VIS" au fost scoase.

@@ -12,6 +12,7 @@ Actualizat 26 nov 2026, după regenerarea mapperelor. Comparat cu ce e în repo,
 - [x] Transcrieri cloud: `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper`, restul din `BKRCKIMapper` (acum fișiere întregi în `common-api/`); `MappingService` din cki și `PartialDataFetcherPG` sunt în `reference/cloud/`.
 - [x] `BKRCommons`: adăugat, ca în cloud (constantele `RESULT*`, constructor privat).
 - [x] Rândurile `TODO` din mappere: verificate pe pozele clare (`Common_Mappers_V2`) și închise.
+- [x] Teste pentru toate cele 7 mappere (55 de teste, în `common-api/src/test/.../applicationbuilder/utils/`).
 
 ## De verificat la copierea în proiectul real
 
@@ -31,7 +32,6 @@ Actualizat 26 nov 2026, după regenerarea mapperelor. Comparat cu ce e în repo,
 ## Mai târziu
 
 - Bean-urile pentru mappere în rat (`ProxyResultMapperConfig` are nevoie de ele): se adaugă la generarea rat proxy.
-- Testele mapperelor: nu acum.
 - Transcrieri de referință rămase, doar dacă vor fi necesare: legacy rat (listener, mapping, client CloverLeaf) și sed (listener, `SedProcessorService`, `SedMappingService`); cloud: `ApplicationBuilderPG` din sed, serviciile și clientul sed.
 
 ## De confirmat cu echipa

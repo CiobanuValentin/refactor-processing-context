@@ -36,6 +36,7 @@ import com.bnp.pf.transformation.commons.api.applicationbuilder.model.BkrPersonR
 import com.bnp.pf.transformation.commons.api.applicationbuilder.model.BkrPersonScore;
 import com.bnp.pf.transformation.commons.api.applicationbuilder.model.CreditLoan;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
+import com.bnp.pf.transformation.commons.api.message.input.Loan;
 
 /**
  * Regenerat din cloud (common-api, branch arval-refactor-last, poze 26.11) si comparat cu legacy (common-api-1.23).
