@@ -8,7 +8,7 @@ Clasele noi din `common-api/src` se copiază ca fișiere întregi, inclusiv mapp
 
 `BKRCKIMapper`, `BKREVAMapper`, `BKRVISMapper`, `DNBMapper`, `EventIndicatorMapper`, `RVDRMapper`, `SCALMapper`.
 
-Se copiază peste cele existente din `applicationbuilder.utils`. `BKRCommons` rămâne neatins (e o clasă goală, cu un constructor, în legacy și în cloud).
+Se copiază peste cele existente din `applicationbuilder.utils`. `BKRCommons` e inclus, identic cu cel din cloud.
 
 Ce s-a schimbat față de cloud:
 
@@ -24,10 +24,7 @@ Păstrat din cloud (fără echivalent în legacy): null-check-urile (SCAL `perso
 ### Ce trebuie verificat în IDE
 
 1. **Importurile**: în fișierele generate sunt doar cele sigure. Păstrează blocul de importuri din fișierul existent (inclusiv importurile statice pentru `isSameDateOfBirth`, `RESULT`, `HOLDER`, `LOW` ...) și înlocuiește doar corpul clasei.
-2. **Rândurile marcate `TODO`** (10): rânduri care ieșeau din ecran sau erau ascunse în poze. Compară-le cu fișierul vechi din IDE (Compare with Clipboard) înainte de commit. Cele mai importante:
-   - `BKRCKIMapper.mapAdditionalResult`, liniile 708-709 din original: nevăzute; `AmountOfActiveLoansTypeTelecomContract` e presupus, a doua linie lipsește;
-   - `BKRCKIMapper.getEachWorstCardScoreValue` / `getEachWorstCardRiskClassValue`: ultimul `filter` e presupus;
-   - `DNBMapper.setDnbLatestAccount` și `setNumberEmployees`: finalul condiției e presupus.
+2. **Rândurile din primele poze** au fost verificate pe pozele clare; nu mai sunt `TODO`-uri.
 3. **Celelalte apeluri** ale metodelor `map...Data` (teste, alte clase): `mapXData(dto, application)` devine `mapXData(List.of(dto), application)`. `mapXData(null, application)` compilează în continuare.
 
 Neschimbate, deși arată a bug (identice în legacy): în `createRiskAssessments` din EVA și VIS, rezultatul co-holder e pus pe `riskAssmntHolder`; `SCALMapper.addOrCreate` folosește `List.of(...)` (listă imuabilă); restul listei din `docs/LOGIC.md`, secțiunea CKI.

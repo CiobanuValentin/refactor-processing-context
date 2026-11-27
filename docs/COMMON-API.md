@@ -13,7 +13,7 @@ Clasele vechi se șterg direct, fără `@Deprecated`. Ordinea de livrare: întâ
 | `PartialDataFetcher`, `PartialDataFetcherPG` | `ProxyResultsFetcher` |
 | testele claselor de mai sus | testele din `src/test` |
 
-Mapperele sunt regenerate (vezi „Mapperele și dto-urile" mai jos). Rămân neatinse: `BKRCommons`, `ProxyDtoBuilder`, `GeneralProxyObsDto`, toate `Check*Dto`, `ErrorHandler`, `Error`, `ProxyObsConstant`, `GsonInstance`, `LocalDateTimeUtils`, `OrchestrationMetaDataHandler`.
+Mapperele sunt regenerate (vezi „Mapperele și dto-urile" mai jos). Rămân neatinse: `ProxyDtoBuilder`, `GeneralProxyObsDto`, toate `Check*Dto`, `ErrorHandler`, `Error`, `ProxyObsConstant`, `GsonInstance`, `LocalDateTimeUtils`, `OrchestrationMetaDataHandler`.
 
 ## Echivalențe, metodă cu metodă
 
@@ -133,21 +133,11 @@ Toate sunt la fel ca în legacy. La VIS și EVA, mai multe rânduri fără erori
 ### Ce nu s-a văzut în poze
 
 - **Importurile** (toate fișierele): în fișierele generate sunt doar cele sigure; se păstrează blocul de importuri din fișierul existent și se înlocuiește doar corpul clasei.
-- **10 rânduri marcate `TODO`**, ieșite din ecran sau ascunse:
-
-| Fișier | Unde | Ce e presupus |
-|---|---|---|
-| `BKRCKIMapper` | `mapAdditionalResult`, liniile 708-709 din original | `AmountOfActiveLoansTypeTelecomContract` (TC); a doua linie necunoscută |
-| `BKRCKIMapper` | `activeOwnedContracts` | `.findAny()` la final |
-| `BKRCKIMapper` | `getNmbrOfActiveLoans` | `return` ca la varianta `Dba` |
-| `BKRCKIMapper` | `mappingRespAndCkiResult` | `.map(SingleBkrResponseResult::getPersons)`, din legacy |
-| `BKRCKIMapper` | `getEachWorstCardScoreValue` / `getEachWorstCardRiskClassValue` | ultimul `filter` (`!= null`) |
-| `BKRCKIMapper` | `getBkrScores` | crearea `BkrPersonScore` și notificările, din legacy |
-| `BKRCKIMapper` | `getBkrToString` | corpul, din legacy |
-| `DNBMapper` | `setDnbLatestAccount` | `...get(0).getFinancialStatementHeader() != null` |
-| `DNBMapper` | `setNumberEmployees` | `getEmployeesInformationEntry()` nevidă |
-
-Înainte de commit în repo-ul real: compară fiecare `TODO` cu fișierul existent (Compare with Clipboard).
+- **Rândurile incomplete din primele poze**: verificate pe pozele clare din 27.11 (`Common_Mappers_V2`); nu mai există `TODO`-uri. Diferențe față de ce fusese presupus:
+  - `BKRCKIMapper.activeOwnedContracts`: `.findFirst()`, nu `.findAny()`;
+  - `DNBMapper.setNumberEmployees`: ultima condiție este `getEmployeesInformationEntry() != null && ...get(0) != null`, nu „listă nevidă”.
+  Restul rândurilor (inclusiv liniile 708-709 din `mapAdditionalResult`: `MailOrder` / `TelecomContract`) erau corecte.
+- **`BKRCommons`**: adăugat în `utils`, ca în cloud (`RESULT`, `RESULT_TRUE`, `RESULT_FALSE`, `RESULT_HOLDER`, `RESULT_CO_HOLDER`); folosit prin `import static ...BKRCommons.*` în CKI, EVA și VIS.
 
 ### Legătura în agregare
 

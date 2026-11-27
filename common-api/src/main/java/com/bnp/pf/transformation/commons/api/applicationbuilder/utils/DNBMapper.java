@@ -115,7 +115,6 @@ public class DNBMapper {
     }
 
     private void setDnbLatestAccount(Organisation company, RecordPayload payload) {
-        // TODO: conditia iese din ecran in poza (IMG_7753); finalul ".getFinancialStatementHeader() != null" e presupus.
         if (payload.getFinancials() != null && payload.getFinancials().getFinancialInformationEntry() != null
                 && CollectionUtils.isNotEmpty(payload.getFinancials().getFinancialInformationEntry())
                 && payload.getFinancials().getFinancialInformationEntry().get(0).getFinancialStatementHeader() != null) {
@@ -177,10 +176,10 @@ public class DNBMapper {
     }
 
     private void setNumberEmployees(Organisation company, RecordPayload payload) {
-        // TODO: conditia iese din ecran in poza (IMG_7754); ultima verificare (getEmployeesInformationEntry() nevida) e presupusa.
         if (payload.getOperationsandHistory() != null && payload.getOperationsandHistory().getSubjectOperationalInformation() != null
                 && payload.getOperationsandHistory().getSubjectOperationalInformation().getEmployeesInformation() != null
-                && CollectionUtils.isNotEmpty(payload.getOperationsandHistory().getSubjectOperationalInformation().getEmployeesInformation().getEmployeesInformationEntry())) {
+                && payload.getOperationsandHistory().getSubjectOperationalInformation().getEmployeesInformation().getEmployeesInformationEntry() != null
+                && payload.getOperationsandHistory().getSubjectOperationalInformation().getEmployeesInformation().getEmployeesInformationEntry().get(0) != null) {
 
             company.setNumberOfEmployees(payload.getOperationsandHistory().getSubjectOperationalInformation().getEmployeesInformation().getEmployeesInformationEntry().get(0).getTotalEmployeesQuantity());
         }

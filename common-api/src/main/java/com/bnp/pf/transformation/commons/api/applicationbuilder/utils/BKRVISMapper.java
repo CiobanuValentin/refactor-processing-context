@@ -3,6 +3,7 @@ package com.bnp.pf.transformation.commons.api.applicationbuilder.utils;
 // Importuri: aici sunt doar cele sigure. Pastreaza blocul de importuri din fisierul existent (inclusiv importurile
 // statice pentru isSameDateOfBirth, RESULT, RESULT_TRUE, HOLDER, LOW, ...) si inlocuieste doar corpul clasei.
 
+import static com.bnp.pf.transformation.commons.api.applicationbuilder.utils.BKRCommons.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

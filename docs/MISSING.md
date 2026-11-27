@@ -10,12 +10,12 @@ Actualizat 26 nov 2026, după regenerarea mapperelor. Comparat cu ce e în repo,
 - [x] `DtoBackedResultMapper` / `ProxyResultMapperConfig`: toate sursele primesc lista, o singură dată pe sursă.
 - [x] Perechile legacy + cloud pentru VIS, EVA, RVDR, SCAL, DNB și EventIndicator (făcute odată cu mapperele).
 - [x] Transcrieri cloud: `SCALMapper`, `RVDRMapper`, `EventIndicatorMapper`, restul din `BKRCKIMapper` (acum fișiere întregi în `common-api/`); `MappingService` din cki și `PartialDataFetcherPG` sunt în `reference/cloud/`.
-- [x] `BKRCommons`: nu se generează (e o clasă goală, cu un constructor, în legacy și în cloud).
+- [x] `BKRCommons`: adăugat, ca în cloud (constantele `RESULT*`, constructor privat).
+- [x] Rândurile `TODO` din mappere: verificate pe pozele clare (`Common_Mappers_V2`) și închise.
 
 ## De verificat la copierea în proiectul real
 
 - **Importurile**: în fișierele generate sunt doar cele sigure. Se păstrează blocul de importuri din fișierul existent și se înlocuiește doar corpul clasei.
-- **Rândurile marcate `TODO` din mappere** (8 în `BKRCKIMapper`, 2 în `DNBMapper`): rânduri lungi care ieșeau din ecran sau erau acoperite în poze și au fost completate după logică sau după legacy. La copiere, fiecare se compară cu rândul corespunzător din fișierul existent; lista e în `COMMON-API.md`.
 
 ## Poze de trimis (pentru proxy-uri, mai târziu)
 

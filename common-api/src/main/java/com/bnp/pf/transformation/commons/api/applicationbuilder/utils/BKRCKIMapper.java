@@ -1,7 +1,8 @@
 package com.bnp.pf.transformation.commons.api.applicationbuilder.utils;
 
 // Importuri: aici sunt doar cele sigure. Pastreaza blocul de importuri din fisierul existent (liniile 1-73, inclusiv
-// importurile statice pentru isSameDateOfBirth, RESULT_HOLDER, LOW, ...) si inlocuieste doar corpul clasei.
+// importurile statice pentru isSameDateOfBirth, HOLDER, LOW, ...) si inlocuieste doar corpul clasei.
+import static com.bnp.pf.transformation.commons.api.applicationbuilder.utils.BKRCommons.*;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -685,8 +686,6 @@ public class BKRCKIMapper {
         bkrCkiResult.setAmountOfActiveLoansTypeHouseDebtWithoutNhg(getNmbrOfActiveLoansSum(ckiResponse.getCreditLoans(), RH));
         bkrCkiResult.setAmountOfActiveLoansTypeHo(getNmbrOfActiveLoansSum(ckiResponse.getCreditLoans(), HO));
         bkrCkiResult.setAmountOfActiveLoansTypeMailOrder(getNmbrOfActiveLoansSum(ckiResponse.getCreditLoans(), VK));
-        // TODO: liniile 708-709 nu se vad in poze (IMG_7774 / IMG_7775). TelecomContract e presupus, dupa celelalte doua liste;
-        //  a doua linie lipsa nu e cunoscuta. De verificat in IDE.
         bkrCkiResult.setAmountOfActiveLoansTypeTelecomContract(getNmbrOfActiveLoansSum(ckiResponse.getCreditLoans(), TC));
         bkrCkiResult.setAmountOfActiveLoansTypeBusinessCredit(getNmbrOfActiveLoansSum(ckiResponse.getCreditLoans(), ZK));
         bkrCkiResult.setAmountOfActiveLoansTypeOtherFinancials(getNmbrOfActiveLoansSum(ckiResponse.getCreditLoans(), ZO));
@@ -743,8 +742,7 @@ public class BKRCKIMapper {
 
     private Integer activeOwnedContracts(List<CreditLoan> creditLoans) {
         if (creditLoans != null && !creditLoans.isEmpty()) {
-            // TODO: finalul liniei iese din ecran (IMG_7775, linia 763); ".findAny()" e presupus.
-            Optional<Map.Entry<String, List<CreditLoan>>> amount = creditLoans.stream().filter(Objects::nonNull).filter(eachLoan -> eachLoan.getAccountNumber() != null).collect(Collectors.groupingBy(CreditLoan::getAccountNumber)).entrySet().stream().findAny();
+            Optional<Map.Entry<String, List<CreditLoan>>> amount = creditLoans.stream().filter(Objects::nonNull).filter(eachLoan -> eachLoan.getAccountNumber() != null).collect(Collectors.groupingBy(CreditLoan::getAccountNumber)).entrySet().stream().findFirst();
             if (amount.isPresent()) {
                 List<CreditLoan> loan = amount.get().getValue().stream()
                         .filter(creditLoan -> creditLoan.getActive() && creditLoan.getIdOwnedContract() != null && creditLoan.getIdOwnedContract().equals("EC")).toList();
@@ -805,7 +803,6 @@ public class BKRCKIMapper {
     private Integer getNmbrOfActiveLoans(List<CreditLoan> creditLoans, String loanType) {
         if (creditLoans != null && !creditLoans.isEmpty()) {
             List<CreditLoan> activeLoan = creditLoans.stream().filter(creditLoan -> creditLoan.getActive() && creditLoan.getTypeOfLoan().equals(loanType)).toList();
-            // TODO: liniile 825-826 nu se vad in poze; presupus la fel ca getNmbrOfActiveLoansDba.
             return !activeLoan.isEmpty() ? activeLoan.size() : 0;
         }
         return 0;
@@ -865,7 +862,6 @@ public class BKRCKIMapper {
             var bkrCkiResult = new BkrCkiResult();
             var bkrPerson = new BkrPerson();
             final List<BkrPersonResult> persons = Optional.ofNullable(ckiResponse.getResult())
-                    // TODO: liniile 885-886 nu se vad in poze; completate dupa legacy (bkrckiproxy MappingService).
                     .map(SingleBkrResponseResult::getPersons)
                     .map(SingleBkrPersons::getPerson).orElseGet(Collections::emptyList)
                     .stream()
@@ -893,7 +889,6 @@ public class BKRCKIMapper {
     }
 
     public Integer getEachWorstCardScoreValue(List<BkrPersonResult> persons) {
-        // TODO: finalul liniei iese din ecran (IMG_7778, linia 913); ultimul filtru e presupus.
         List<BkrPersonScore> scoreList = persons.stream().filter(Objects::nonNull).flatMap(person -> Optional.ofNullable(person.getBkrScores()).orElseGet(Collections::emptyList).stream().filter(Objects::nonNull)).filter(score -> score.getCardScoreValue() != null).toList();
         if (!scoreList.isEmpty()) {
             Optional<BkrPersonScore> scoreValue = scoreList.stream().filter(Objects::nonNull).max(Comparator.comparing(BkrPersonScore::getCardScoreValue));
@@ -905,7 +900,6 @@ public class BKRCKIMapper {
     }
 
     public String getEachWorstCardRiskClassValue(List<BkrPersonResult> persons) {
-        // TODO: finalul liniei iese din ecran (IMG_7778, linia 923); ultimul filtru e presupus.
         List<BkrPersonScore> scoreList = persons.stream().filter(Objects::nonNull).flatMap(person -> Optional.ofNullable(person.getBkrScores()).orElseGet(Collections::emptyList).stream().filter(Objects::nonNull)).filter(score -> score.getCardRiskClass() != null).toList();
         if (!scoreList.isEmpty()) {
             Optional<BkrPersonScore> scoreClass = scoreList.stream().filter(Objects::nonNull).max(Comparator.comparing(BkrPersonScore::getCardRiskClass));
@@ -928,7 +922,6 @@ public class BKRCKIMapper {
                 .stream()
                 .filter(Objects::nonNull)
                 .map(bkrScore -> {
-                    // TODO: liniile 945-949 nu se vad in poze; completate dupa legacy (bkrckiproxy MappingService).
                     var score = new BkrPersonScore();
                     score.setCardName(bkrScore.getCardName());
                     if (!bkrScore.getNotification().isEmpty()) {
@@ -991,7 +984,6 @@ public class BKRCKIMapper {
     }
 
     private String getBkrToString(CreditLoan eachLoan) {
-        // TODO: liniile 1007-1011 nu se vad in poze; completate dupa legacy (bkrckiproxy MappingService).
         return (eachLoan.getBkrCodes() != null && !eachLoan.getBkrCodes().isEmpty()) ? eachLoan.getBkrCodes().stream()
                 .filter(Objects::nonNull)
                 .filter(codes -> !codes.isEmpty())
