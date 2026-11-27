@@ -50,10 +50,6 @@ public class CreditCheckRecordService {
     /**
      * Toate randurile pentru businessKey si flowId, cel mai nou primul. Fara randuri intoarce lista goala
      * (inainte: un singur dto, iar fara randuri un dto gol).
-     *
-     * De adaugat in CreditCheckRepository:
-     *   List<CreditCheckEntity> findAllByBusinessKeyAndFlowIdOrderByCreatedDateDesc(String businessKey, String flowId);
-     * findTopByBusinessKeyAndFlowIdOrderByCreatedDateDesc se poate sterge daca nu mai are alte folosiri.
      */
     public List<GeneralProxyObsDto> fetchCheckCredits(String businessKey, String flowId) {
         List<CreditCheckEntity> creditCheckEntities =

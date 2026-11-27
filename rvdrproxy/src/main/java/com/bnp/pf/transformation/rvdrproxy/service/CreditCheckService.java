@@ -72,8 +72,6 @@ public class CreditCheckService {
         log.debug("Making the SOAP call to the RVDR external service with the request: {}",
                 creditCheckRequestJson.replaceAll("\\R", " "));
 
-        // TODO: SoapClient.creditCheckRequest trebuie sa primeasca ProxyContext si sa foloseasca ctx.addError(...)
-        //  in loc de CollectError (clasa nu a fost inca vazuta in poze).
         CreditCheckResult result = soapClient.creditCheckRequest(ctx, creditCheckRequest);
         String responseJson = gson.toJson(result.getResponse());
 
