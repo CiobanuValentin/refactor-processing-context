@@ -20,6 +20,8 @@ import com.bnp.pf.transformation.commons.api.applicationbuilder.dto.CheckCkiPers
 import com.bnp.pf.transformation.commons.api.applicationbuilder.model.BkrCkiResponse;
 import com.bnp.pf.transformation.commons.api.applicationbuilder.model.CreditLoan;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
+// Customer, Organisation, Address, Identification, RiskAssessment: acelasi pachet ca Application (message.input).
+import com.bnp.pf.transformation.commons.api.message.input.*;
 
 class BKRCKIMapperTest {
 

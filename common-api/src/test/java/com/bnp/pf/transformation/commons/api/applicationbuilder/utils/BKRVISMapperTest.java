@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import com.bnp.pf.transformation.commons.api.applicationbuilder.dto.CheckVisDto;
 import com.bnp.pf.transformation.commons.api.error.ErrorHandler;
 import com.bnp.pf.transformation.commons.api.message.input.Application;
+// Customer, Organisation, Address, Identification, RiskAssessment: acelasi pachet ca Application (message.input).
+import com.bnp.pf.transformation.commons.api.message.input.*;
 
 class BKRVISMapperTest {
 

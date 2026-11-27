@@ -1,13 +1,13 @@
 package com.bnp.pf.transformation.commons.api.applicationbuilder.utils;
 
-// Importuri: Customer, Organisation, Address, Identification, RiskAssessment si tipurile WSDL (DateType, ...) sunt
-// in aceleasi pachete ca in mappere - copiaza importurile din mapperul testat.
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.bnp.pf.transformation.commons.api.message.input.Application;
 import com.bnp.pf.transformation.commons.api.message.input.Loan;
+// Customer, Organisation, Address, Identification, RiskAssessment: acelasi pachet ca Application (message.input).
+import com.bnp.pf.transformation.commons.api.message.input.*;
 
 /** Date comune pentru testele mapperelor. */
 final class MapperTestData {
