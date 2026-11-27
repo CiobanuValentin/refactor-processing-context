@@ -58,7 +58,7 @@ Ce s-a schimbat față de testele vechi din `ProxyListenerTest`:
 | `whenApplicationEmptyCheckThrows_...` | dispare: validatorul nu aruncă; JSON invalid e testat în common |
 | `whenStatusUpdateFails_shouldStillPublishStatusAndErrors` | **nu mai are echivalent identic**, vezi mai jos |
 
-**Diferență de comportament de confirmat:** în cloud, dacă `updateApplicationStatus` arunca, listenerul loga și publica statusul calculat (OK sau KO). Acum excepția ajunge în `catch`, se adaugă eroarea `500` și se publică KO + error. Dacă vrei comportamentul din cloud, se pune un `try/catch` în jurul lui `updateApplicationStatus` (în toate listenerele, inclusiv vis).
+**Diferență de comportament (decis 27.11: rămâne așa momentan):** în cloud, dacă `updateApplicationStatus` arunca, listenerul loga și publica statusul calculat (OK sau KO). Acum excepția ajunge în `catch`, se adaugă eroarea `500` și se publică KO + error. Legacy nu avea acest pas (nu scria status în DB). De știut: `updateApplicationStatus` face `Long.valueOf(businessKey)`, deci un businessKey nenumeric dă KO.
 
 Textele de pe topicul de error sunt cele din cloud: `CreditCheck returned an error: <cod>:<mesaj>` și `Error when executing external SOAP call creditCheckRequest(): <mesaj>`.
 
