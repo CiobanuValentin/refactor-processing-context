@@ -19,14 +19,14 @@ Sursa: proiectul `rvdrproxy`, branch `feature/proxy-refactorization-2.0` (pozele
 | `config/…/KafkaConfig` | `errorHandler` doar cu reîncercări (vezi `snippets/proxy-config/KafkaConfig-errorHandler.java`) | lipsește poza |
 | `kafka/KafkaPublisher` | **șters** (se folosește cel din common) | - |
 | `model/CreditCheckResult`, `entity/`, `utils/BuildDTOsUtility` | neschimbate | nevăzute |
-| teste | de rescris după modelul din `bkrvisproxy/src/test` | nevăzute |
+| teste: `builder/ContextBuilder`, `controller/ProxyListenerTest`, `controller/RvdrControllerTest`, `service/IntegrityCheckServiceTest` | după modelul din vis; pachetul de test `rvdrproxy.*` e presupus | scrise, necompilate |
+| teste: `CreditCheckServiceTest`, `CreditCheckRecordServiceTest`, `CreditCheckCacheServiceTest`, `SoapClientTest` | de adaptat după ce se văd cele existente | lipsesc pozele |
 
 ## Diferențe față de cloud
 
 1. Endpoint-ul întoarce listă; fără rânduri întoarce listă goală, nu un dto gol.
 2. Excepțiile neașteptate dau status KO + eroare, fără `ProcessingFailedException`.
-3. Verificarea `application == null` din `IntegrityCheckService` a dispărut: validatorul o garantează.
-4. Cererea și răspunsul SOAP se loghează la `debug`, ca în vis.
+3. Cererea și răspunsul SOAP se loghează la `debug`, ca în vis.
 
 ## Ce mai lipsește (poze)
 

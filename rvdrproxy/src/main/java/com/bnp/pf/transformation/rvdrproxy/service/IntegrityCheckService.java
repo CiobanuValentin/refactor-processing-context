@@ -26,9 +26,13 @@ public class IntegrityCheckService {
     private final ApplicationService applicationService;
     private final CreditCheckService creditCheckService;
 
-    /** Se apeleaza doar dupa ProxyContextValidator.validate(ctx) == true, deci aplicatia exista. */
+    /** Se apeleaza dupa ProxyContextValidator.validate(ctx) == true; verificarea aplicatiei ramane, ca in cloud si ca in vis. */
     public void loanCheckProcess(ProxyContext ctx) {
         Application application = ctx.getApplication();
+        if (application == null) {
+            log.warn("No application in context for businessKey {}, skipping loan check", ctx.getBusinessKey());
+            return;
+        }
 
         if (!saveApplication(ctx)) {
             return;
